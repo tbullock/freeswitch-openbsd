@@ -23,7 +23,6 @@
  *
  * Contributor(s):
  * 
- * Ted Bullock <tbullock@northernartifex.com>
  * Anthony Minessale II <anthm@freeswitch.org>
  * Michael Jerris <mike@jerris.com>
  * Paul D. Tinsley <pdt at jackhammer.org>
@@ -33,240 +32,147 @@
  *
  */
 
-/*
- * Wrapper to APR hash tables, note this wrapper only supports hash
- * keys made from character strings.
- */
-
 #include <switch.h>
-#include <stdbool.h>
-
-#include <apr_general.h>
-#include <apr_hash.h>
-#include <apr_strings.h>
-#include <apr_errno.h>
-
+#include "private/switch_core_pvt.h"
+#include <sqlite3.h>
+#include "../../../libs/sqlite/src/hash.h"
 
 struct switch_hash {
-	apr_hash_t    *ht;
-	apr_pool_t    *pool;
-	bool           priv; /* private pool, handle accordingly */
+	Hash table;
+	switch_memory_pool_t *pool;
 };
 
-/*
- * Initialize a hash table, note that pool will be cleared after
- * calling switch_core_hash_destroy, alternatively, a private memory
- * pool will be created and used if pool is NULL
- */
-void hash_init(switch_hash_t        **hash,
-               switch_memory_pool_t  *pool)
+SWITCH_DECLARE(switch_status_t) switch_core_hash_init_case(switch_hash_t **hash, switch_memory_pool_t *pool, switch_bool_t case_sensitive)
 {
-	struct switch_hash *h;
+	switch_hash_t *newhash;
 
-	h = malloc(sizeof(struct switch_hash));
-	switch_assert(h);
-
-	/* Use existing apr memory pool */
-	if (pool != NULL) {
-	    h->pool = pool;
-	    h->priv = SWITCH_FALSE;
+	if (pool) {
+		newhash = switch_core_alloc(pool, sizeof(*newhash));
+		newhash->pool = pool;
 	} else {
-	/* No pool specified, make a new private one */
-	    switch_memory_pool_t *p = NULL;
-	    apr_status_t s = apr_pool_create(&p, NULL);
-	    switch_assert(s == APR_SUCCESS);
-
-	    h->pool = p;
-	    h->priv = SWITCH_TRUE;
+		switch_zmalloc(newhash, sizeof(*newhash));
 	}
 
-	h->ht = apr_hash_make(h->pool);
-	switch_assert(h->ht);
+	switch_assert(newhash);
 
-	*hash = h;
-}
+	sqlite3HashInit(&newhash->table, case_sensitive ? SQLITE_HASH_BINARY : SQLITE_HASH_STRING, 1);
+	*hash = newhash;
 
-/* This does nothing useful */
-SWITCH_DECLARE(switch_status_t)
-switch_core_hash_init_case(switch_hash_t        **hash,
-                           switch_memory_pool_t  *pool,
-                           switch_bool_t          case_sensitive)
-{
-	case_sensitive = case_sensitive; /* Avoid compiler warning */
-	hash_init(hash, pool);
-
-	/* Why do we even return a result since we exit on any error? */
 	return SWITCH_STATUS_SUCCESS;
 }
 
-SWITCH_DECLARE(switch_status_t)
-switch_core_hash_destroy(switch_hash_t **hash)
+SWITCH_DECLARE(switch_status_t) switch_core_hash_destroy(switch_hash_t **hash)
 {
-	struct switch_hash *h;
-	switch_assert(hash);
-	switch_assert(*hash);
+	switch_assert(hash != NULL && *hash != NULL);
+	sqlite3HashClear(&(*hash)->table);
 
-	/* make this easier to read */
-	h = *hash;
-	
-	/* if we have public memory pool */
-	if (h->priv == SWITCH_TRUE)
-	    apr_pool_destroy(h->pool);
-
-	free(h);
+	if (!(*hash)->pool) {
+		free(*hash);
+	}
 
 	*hash = NULL;
 
-	/* Why do we even return a result since we exit on any error? */
 	return SWITCH_STATUS_SUCCESS;
 }
 
-SWITCH_DECLARE(switch_status_t)
-switch_core_hash_insert(switch_hash_t *h,
-                        const char    *key,
-                        const void    *data)
+SWITCH_DECLARE(switch_status_t) switch_core_hash_insert(switch_hash_t *hash, const char *key, const void *data)
 {
-	switch_assert(h);
-	switch_assert(key);
-	switch_assert(data);
-
-	apr_hash_set(h->ht,
-	             key,
-                 APR_HASH_KEY_STRING,
-                 (void *) data);
-
-	/* Why do we even return a result since we exit on any error? */
+	sqlite3HashInsert(&hash->table, key, (int) strlen(key) + 1, (void *) data);
 	return SWITCH_STATUS_SUCCESS;
 }
 
-SWITCH_DECLARE(switch_status_t)
-switch_core_hash_insert_locked(switch_hash_t  *h, 
-                               const char     *key,
-                               const void     *data,
-                               switch_mutex_t *mutex)
+SWITCH_DECLARE(switch_status_t) switch_core_hash_insert_locked(switch_hash_t *hash, const char *key, const void *data, switch_mutex_t *mutex)
 {
-	if (mutex != NULL)
-	    switch_mutex_lock(mutex);
+	if (mutex) {
+		switch_mutex_lock(mutex);
+	}
 
-	switch_core_hash_insert(h, key, data);
+	sqlite3HashInsert(&hash->table, key, (int) strlen(key) + 1, (void *) data);
 
-	if (mutex != NULL)
-	    switch_mutex_unlock(mutex);
+	if (mutex) {
+		switch_mutex_unlock(mutex);
+	}
 
-	/* Why do we even return a result since we exit on any error? */
 	return SWITCH_STATUS_SUCCESS;
 }
 
-SWITCH_DECLARE(switch_status_t)
-switch_core_hash_insert_wrlock(switch_hash_t          *h,
-                               const char             *key,
-                               const void             *data,
-                               switch_thread_rwlock_t *rwlock)
+SWITCH_DECLARE(switch_status_t) switch_core_hash_insert_wrlock(switch_hash_t *hash, const char *key, const void *data, switch_thread_rwlock_t *rwlock)
 {
-	if (rwlock != NULL)
-	    switch_thread_rwlock_wrlock(rwlock);
+	if (rwlock) {
+		switch_thread_rwlock_wrlock(rwlock);
+	}
 
-	switch_core_hash_insert(h, key, data);
+	sqlite3HashInsert(&hash->table, key, (int) strlen(key) + 1, (void *) data);
 
-	if (rwlock != NULL)
-	    switch_thread_rwlock_unlock(rwlock);
+	if (rwlock) {
+		switch_thread_rwlock_unlock(rwlock);
+	}
 
-	/* Why do we even return a result since we exit on any error? */
 	return SWITCH_STATUS_SUCCESS;
 }
 
-SWITCH_DECLARE(switch_status_t)
-switch_core_hash_delete(switch_hash_t *h,
-                        const char    *key)
+SWITCH_DECLARE(switch_status_t) switch_core_hash_delete(switch_hash_t *hash, const char *key)
 {
-	switch_assert(h);
-	switch_assert(key);
-
-	apr_hash_set(h->ht,
-	             key,
-                 APR_HASH_KEY_STRING,
-                 NULL);
-
-	/* Why do we even return a result since we exit on any error? */
+	sqlite3HashInsert(&hash->table, key, (int) strlen(key) + 1, NULL);
 	return SWITCH_STATUS_SUCCESS;
 }
 
-SWITCH_DECLARE(switch_status_t)
-switch_core_hash_delete_locked(switch_hash_t  *h, 
-                               const char     *key,
-                               switch_mutex_t *mutex)
+SWITCH_DECLARE(switch_status_t) switch_core_hash_delete_locked(switch_hash_t *hash, const char *key, switch_mutex_t *mutex)
 {
-	if (mutex != NULL)
-	    switch_mutex_lock(mutex);
+	if (mutex) {
+		switch_mutex_lock(mutex);
+	}
 
-	switch_core_hash_delete(h, key);
+	sqlite3HashInsert(&hash->table, key, (int) strlen(key) + 1, NULL);
 
-	if (mutex != NULL)
-	    switch_mutex_unlock(mutex);
+	if (mutex) {
+		switch_mutex_unlock(mutex);
+	}
 
-	/* Why do we even return a result since we exit on any error? */
 	return SWITCH_STATUS_SUCCESS;
 }
 
-SWITCH_DECLARE(switch_status_t)
-switch_core_hash_delete_wrlock(switch_hash_t          *h,
-                               const char             *key,
-                               switch_thread_rwlock_t *rwlock)
+SWITCH_DECLARE(switch_status_t) switch_core_hash_delete_wrlock(switch_hash_t *hash, const char *key, switch_thread_rwlock_t *rwlock)
 {
-	if (rwlock != NULL)
-	    switch_thread_rwlock_wrlock(rwlock);
+	if (rwlock) {
+		switch_thread_rwlock_wrlock(rwlock);
+	}
 
-	switch_core_hash_delete(h, key);
+	sqlite3HashInsert(&hash->table, key, (int) strlen(key) + 1, NULL);
 
-	if (rwlock != NULL)
-	    switch_thread_rwlock_unlock(rwlock);
+	if (rwlock) {
+		switch_thread_rwlock_unlock(rwlock);
+	}
 
-	/* Why do we even return a result since we exit on any error? */
 	return SWITCH_STATUS_SUCCESS;
 }
 
-/*
- * This function is just re-adapted to apr from upstreams delete_multi
- * 
- * To be entirely straight, I have no idea what this thing is doing
- * -Ted
- * this is a huge candidate for re-implementation
- */
-SWITCH_DECLARE(switch_status_t)
-switch_core_hash_delete_multi(switch_hash_t                 *h,
-                              switch_hash_delete_callback_t  callback,
-                              void                          *data)
-{
-	apr_hash_index_t      *hi;
-	switch_event_t        *event = NULL;
+SWITCH_DECLARE(switch_status_t) switch_core_hash_delete_multi(switch_hash_t *hash, switch_hash_delete_callback_t callback, void *pData) {
+
+	switch_hash_index_t *hi = NULL;
+	switch_event_t *event = NULL;
 	switch_event_header_t *header = NULL;
-	switch_status_t        status = SWITCH_STATUS_GENERR;
-
+	switch_status_t status = SWITCH_STATUS_GENERR;
+	
 	switch_event_create_subclass(&event, SWITCH_EVENT_CLONE, NULL);
 	switch_assert(event);
 	
-	/*
-	 * iterate through the hash, call callback, if callback 
-	 * returns NULL or true, put the key on the list (event)
-	 * When done, iterate through the list deleting hash entries
+	/* iterate through the hash, call callback, if callback returns NULL or true, put the key on the list (event)
+	   When done, iterate through the list deleting hash entries
 	 */
 	
-	for (hi = apr_hash_first(NULL, h->ht); hi; hi = apr_hash_next(hi)) {
-		const void *k;
-		void *v;
-
-		apr_hash_this(hi, &k, NULL, &v);
-		if (!callback || callback(k, v, data)) {
-			switch_event_add_header_string(event,
-                                           SWITCH_STACK_BOTTOM,
-                                           "delete",
-                                           (const char *) k);
+	for (hi = switch_hash_first(NULL, hash); hi; hi = switch_hash_next(hi)) {
+		const void *key;
+		void *val;
+		switch_hash_this(hi, &key, NULL, &val);
+		if (!callback || callback(key, val, pData)) {
+			switch_event_add_header_string(event, SWITCH_STACK_BOTTOM, "delete", (const char *) key);
 		}
 	}
 	
 	/* now delete them */
 	for (header = event->headers; header; header = header->next) {
-		if (switch_core_hash_delete(h, header->value) == SWITCH_STATUS_SUCCESS) {
+		if (switch_core_hash_delete(hash, header->value) == SWITCH_STATUS_SUCCESS) {
 			status = SWITCH_STATUS_SUCCESS;
 		}
 	}
@@ -277,98 +183,82 @@ switch_core_hash_delete_multi(switch_hash_t                 *h,
 }
 
 
-SWITCH_DECLARE(void *)
-switch_core_hash_find(switch_hash_t *h, const char *key)
+SWITCH_DECLARE(void *) switch_core_hash_find(switch_hash_t *hash, const char *key)
 {
-	switch_assert(h);
-	switch_assert(key);
- 
-	return apr_hash_get(h->ht, key, APR_HASH_KEY_STRING);
+	return sqlite3HashFind(&hash->table, key, (int) strlen(key) + 1);
 }
 
-SWITCH_DECLARE(void *)
-switch_core_hash_find_locked(switch_hash_t  *h,
-                             const char     *key,
-                             switch_mutex_t *mutex)
+SWITCH_DECLARE(void *) switch_core_hash_find_locked(switch_hash_t *hash, const char *key, switch_mutex_t *mutex)
 {
-	void *v;
+	void *val;
 
-	if (mutex != NULL)
-	    switch_mutex_lock(mutex);
+	if (mutex) {
+		switch_mutex_lock(mutex);
+	}
 
-	v = switch_core_hash_find(h, key);
+	val = sqlite3HashFind(&hash->table, key, (int) strlen(key) + 1);
 
-	if (mutex != NULL)
-	    switch_mutex_unlock(mutex);
+	if (mutex) {
+		switch_mutex_unlock(mutex);
+	}
 
-	return v;
+	return val;
 }
 
-SWITCH_DECLARE(void *)
-switch_core_hash_find_rdlock(switch_hash_t          *h,
-                             const char             *key,
-                             switch_thread_rwlock_t *rwlock)
+SWITCH_DECLARE(void *) switch_core_hash_find_rdlock(switch_hash_t *hash, const char *key, switch_thread_rwlock_t *rwlock)
 {
-	void *v;
+	void *val;
 
-	if (rwlock != NULL)
-	    switch_thread_rwlock_rdlock(rwlock);
+	if (rwlock) {
+		switch_thread_rwlock_rdlock(rwlock);
+	}
 
-	v = switch_core_hash_find(h, key);
+	val = sqlite3HashFind(&hash->table, key, (int) strlen(key) + 1);
 
-	if (rwlock != NULL)
-	    switch_thread_rwlock_unlock(rwlock);
+	if (rwlock) {
+		switch_thread_rwlock_unlock(rwlock);
+	}
 
-	return v;
+	return val;
 }
 
-SWITCH_DECLARE(switch_hash_index_t *)
-switch_core_hash_first(switch_hash_t *h)
+SWITCH_DECLARE(switch_hash_index_t *) switch_core_hash_first(switch_hash_t *hash)
 {
-	switch_assert(h);
-
-	return apr_hash_first(h->pool, h->ht);
+	return (switch_hash_index_t *) sqliteHashFirst(&hash->table);
 }
 
-SWITCH_DECLARE(switch_hash_index_t *)
-switch_core_hash_next(switch_hash_index_t *hi)
+SWITCH_DECLARE(switch_hash_index_t *) switch_core_hash_next(switch_hash_index_t *hi)
 {
-	switch_assert(hi);
-
-	return apr_hash_next(hi);
+	return (switch_hash_index_t *) sqliteHashNext((HashElem *) hi);
 }
 
-SWITCH_DECLARE(void)
-switch_core_hash_this(switch_hash_index_t  *hi,
-                      const void          **key,
-                      switch_ssize_t       *klen,
-                      void                **val)
+SWITCH_DECLARE(void) switch_core_hash_this(switch_hash_index_t *hi, const void **key, switch_ssize_t *klen, void **val)
 {
-	switch_assert(hi);
-
-	apr_hash_this(hi, key, klen, val);
+	if (key) {
+		*key = sqliteHashKey((HashElem *) hi);
+		if (klen) {
+			*klen = strlen((char *) *key) + 1;
+		}
+	}
+	if (val) {
+		*val = sqliteHashData((HashElem *) hi);
+	}
 }
 
 /* Deprecated */
-SWITCH_DECLARE(switch_hash_index_t *)
-switch_hash_first(char *deprecate_me, switch_hash_t *hash)
+SWITCH_DECLARE(switch_hash_index_t *) switch_hash_first(char *deprecate_me, switch_hash_t *hash)
 {
 	return switch_core_hash_first(hash);
 }
 
 /* Deprecated */
-SWITCH_DECLARE(switch_hash_index_t *)
-switch_hash_next(switch_hash_index_t *hi)
+SWITCH_DECLARE(switch_hash_index_t *) switch_hash_next(switch_hash_index_t *hi)
 {
 	return switch_core_hash_next(hi);
 }
 
 /* Deprecated */
-SWITCH_DECLARE(void)
-switch_hash_this(switch_hash_index_t  *hi,
-                 const void          **key,
-                 switch_ssize_t       *klen,
-                 void                **val)
+SWITCH_DECLARE(void) switch_hash_this(switch_hash_index_t *hi, const void **key, switch_ssize_t *klen, void **val)
 {
 	switch_core_hash_this(hi, key, klen, val);
 }
@@ -381,5 +271,5 @@ switch_hash_this(switch_hash_index_t  *hi,
  * c-basic-offset:4
  * End:
  * For VIM:
- * vim:set softtabstop=4 shiftwidth=4 tabstop=4 noet:
+ * vim:set softtabstop=4 shiftwidth=4 tabstop=4:
  */
