@@ -15,7 +15,7 @@ linux distributions have made official packages.
 
 Also at the time of writing, Freeswitch does not compile on OpenBSD, and I can
 not possibly be bothered to replicate all the porting work that was done on
-the dependancies to get the to 'work on OpenBSD' (yawn).
+the dependancies to get them to 'work on OpenBSD' (yawn).
 
 Point
 =====
