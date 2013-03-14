@@ -47,6 +47,7 @@
 #undef inline
 #include <datatypes.h>
 #include <srtp.h>
+#include <srtp_priv.h> /* Freeswitch uses private API in libsrtp */
 
 #define READ_INC(rtp_session) switch_mutex_lock(rtp_session->read_mutex); rtp_session->reading++
 #define READ_DEC(rtp_session)  switch_mutex_unlock(rtp_session->read_mutex); rtp_session->reading--
