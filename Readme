@@ -1,0 +1,51 @@
+Freeswitch on OpenBSD
+=====================
+
+This is a shallow fork of Freeswitch for use on OpenBSD.
+
+Reason
+======
+
+Freeswitch bundles almost all its dependancies inside its source tree, which is
+a nightmare for packagers to work around.  Since OpenBSD and Freeswitch are 
+important to me and my business, I am taking the time to build this.
+
+As testament to how difficult it is to package Freeswitch, none of the major
+linux distributions have made official packages.
+
+Also at the time of writing, Freeswitch does not compile on OpenBSD, and I can
+not possibly be bothered to replicate all the porting work that was done on
+the dependancies to get the to 'work on OpenBSD' (yawn).
+
+Point
+=====
+
+To make Freeswitch a first class citizen on OpenBSD and to eventually have a
+real Freeswitch port included in OpenBSD.
+
+Dependancies
+============
+
+We depend on the following OpenBSD ports:
+
+spandsp
+libsrtp
+libapr
+miniupnpc
+libnatpmp
+<more to follow as work progresses>
+
+Building
+========
+
+Install the list of dependancies
+
+Installation from source should be as simple as:
+
+> make && make install
+
+Proviso: Until the porting work is actually complete the previous command is
+basically a fantasy.
+
+
+
