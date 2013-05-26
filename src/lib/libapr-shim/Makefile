@@ -12,6 +12,13 @@
 # ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 # OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-SUBDIR = lib mod bin
 
-.include <bsd.subdir.mk>
+LIB=	apr-shim
+LIBDIR=	/usr/local/lib
+
+CFLAGS +=	-I/usr/local/include/apr-1
+CFLAGS +=	-Wall
+
+SRCS=	apr-shim.c
+
+.include <bsd.lib.mk>

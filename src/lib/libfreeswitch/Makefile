@@ -14,6 +14,7 @@
 
 
 LIB=	freeswitch
+LIBDIR=	/usr/local/lib
 
 CPPFLAGS +=	-DENABLE_SRTP
 
@@ -64,15 +65,7 @@ SRCS=	g711.c switch_apr.c switch_buffer.c switch_caller.c \
 # Specialty libraries
 SRCS+=	stfu.c
 SRCS+=	libteletone_detect.c libteletone_generate.c
+SRCS+=	tpl.c
 
-# The freeswitch guys decided to embed the following in libfreeswitch.
-# At the moment, I am not certain if any of the following are needed...
-
-# libs/libtpl-1.5/src/
-#SRCS+=	tpl.c
-
-# Probably need to handle this later
-# /libs/libteletone/src/ (legacy location)
-#SRCS+=	libteletone_detect.c libteletone_generate.c
 
 .include <bsd.lib.mk>
