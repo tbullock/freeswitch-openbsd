@@ -67,6 +67,9 @@
 #include <apr_uuid.h>
 #include <apr_md5.h>
 
+/* Needed since OpenBSD APR doesn't have goo in FS Tree version of apr */
+#include <apr-shim.h>
+
 /* apr stubs */
 
 SWITCH_DECLARE(int) switch_status_is_timeup(int status)
