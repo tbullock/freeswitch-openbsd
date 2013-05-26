@@ -40,8 +40,8 @@
 //#define DESTROY_POOLS
 //#define INSTANTLY_DESTROY_POOLS
 //#define LOCK_MORE
-//#define USE_MEM_LOCK
-//#define SWITCH_POOL_RECYCLE
+#define USE_MEM_LOCK
+#define SWITCH_POOL_RECYCLE
 #ifndef SWITCH_POOL_RECYCLE
 #define PER_POOL_LOCK 1
 #endif
@@ -534,7 +534,11 @@ static void *SWITCH_THREAD_FUNC pool_thread(switch_thread_t *thread, void *obj)
 				switch_mutex_unlock(memory_manager.mem_lock);
 #endif
 #else
+
+/* Make this compile on OpenBSD.... Sure hope USE_MEM_LOCK works */
+#ifdef PER_POOL_LOCK
 				apr_pool_mutex_set(pop, NULL);
+#endif
 #ifdef DEBUG_ALLOC
 				switch_log_printf(SWITCH_CHANNEL_LOG, SWITCH_LOG_CONSOLE, "%p DESTROY POOL\n", (void *) pop);	
 #endif
