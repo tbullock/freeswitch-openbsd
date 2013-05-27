@@ -84,8 +84,8 @@
 /* Used in switch_core.c */
 #define HAVE_SETPRIORITY
 
-/* Used in switch_core.c */
-#define HAVE_SETRLIMIT
+/* Used in switch_core.c - Disabling for now...*/
+#undef HAVE_SETRLIMIT
 
 /* Used in switch_utils.c */
 #define HAVE_STRERROR_R
