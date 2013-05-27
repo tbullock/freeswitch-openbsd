@@ -14,6 +14,9 @@
 
 PROG=	fsd
 BINDIR=	/usr/local/bin
+MANDIR=	/usr/local/man/man
+
+MAN=	fsd.1
 
 CFLAGS +=	-I/usr/local/include
 CFLAGS +=	-I/usr/local/include/apr-1
