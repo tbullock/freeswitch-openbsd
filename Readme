@@ -28,11 +28,19 @@ Dependancies
 
 We depend on the following OpenBSD ports:
 
-spandsp
-libsrtp
-libapr
+aprutil-1
+apr-1
+curl
+idn
+pcre
+srtp	
+speex
+speexdsp
+iconv
+intl
+natpmp
 miniupnpc
-libnatpmp
+spandsp
 <more to follow as work progresses>
 
 Building
