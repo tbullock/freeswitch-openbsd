@@ -55,5 +55,28 @@ Installation from source should be as simple as:
 Proviso: Until the porting work is actually complete the previous command is
 basically a fantasy.
 
+Problems
+========
 
+- if HAVE_SETRLIMIT is defined we crash and burn instantly
+- mime.types is hard coded
+	- What else is hard coded?
+	- ideally we should point at freeswitch.xml and it should specify
+	- wtf is a softswitch doing loading a giant list of mime types
 
+Things to do
+============
+
+- Current launcher (switch.c) is pretty heavy (1000+ lines), perhaps re-write it
+	- Launcher should do only this (more or less):
+		- Load freeswitch.xml (or user specified equivalent)
+		- Setup signal handling
+		- Daemonize
+
+Criticisms
+==========
+
+- Configuration is loaded by directories? Can we not just specify freeswitch.xml
+- Configuration is really heavy. A scan of the vanilla config folder from
+  the source tree shows there are 248 items weighing a heafty 667.5 kB.
+- Launcher doesn't appear to use getopt for some reason?
