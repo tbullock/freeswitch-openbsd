@@ -15,7 +15,7 @@ linux distributions have made official packages.
 
 Also at the time of writing, Freeswitch does not compile on OpenBSD, and I can
 not possibly be bothered to replicate all the porting work that was done on
-the dependancies to get them to 'work on OpenBSD' (yawn).
+the dependencies to get them to 'work on OpenBSD' (yawn).
 
 Point
 =====
@@ -23,7 +23,7 @@ Point
 To make Freeswitch a first class citizen on OpenBSD and to eventually have a
 real Freeswitch port included in OpenBSD.
 
-Dependancies
+Dependencies
 ============
 
 We depend on the following OpenBSD ports:
@@ -46,7 +46,7 @@ spandsp
 Building
 ========
 
-Install the list of dependancies
+Install the list of dependencies
 
 Installation from source should be as simple as:
 
