@@ -43,6 +43,9 @@ miniupnpc
 spandsp
 <more to follow as work progresses>
 
+Additionally, FreeSWITCH depends on sqlite3 which is a system library on
+OpenBSD. See problems below regarding this.
+
 Building
 ========
 
@@ -63,6 +66,13 @@ Problems
 	- What else is hard coded?
 	- ideally we should point at freeswitch.xml and it should specify
 	- wtf is a softswitch doing loading a giant list of mime types
+		- Can we not just specify the couple it needs by hand?
+- According to FreeSWITCH developers, the in-tree version of sqlite is heavily
+  modified to the point where it does not look like upstream sqlite. This may
+  prove to be a major problem for this project in that, to use the in-tree
+  version may require a dedicated porting effort to introduce OpenBSD specific
+  changes just to make that one library function properly.
+
 
 Things to do
 ============
