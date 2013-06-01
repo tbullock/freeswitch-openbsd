@@ -24,6 +24,8 @@ CFLAGS +=	-I/usr/local/include/srtp
 CFLAGS +=	-I${.CURDIR}/../../include
 CFLAGS +=	-Wall
 
+DEBUG= -g
+
 HDRS=	libteletone.h libteletone_detect.h libteletone_generate.h \
 		stfu.h switch.h switch_am_config.h switch_apr.h \
 		switch_buffer.h switch_caller.h switch_channel.h \
