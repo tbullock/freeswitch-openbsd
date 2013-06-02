@@ -1,6 +1,9 @@
+src/bin/fsd/fsd.1.manlint
+src/bin/fsd/fsd
+fsd.core
 *~
 *.o
-*.so
+*.so*
 *.po
 *.lo
 *.a
