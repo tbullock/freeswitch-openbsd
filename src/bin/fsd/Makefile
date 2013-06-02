@@ -25,6 +25,8 @@ CFLAGS +=	-I${.CURDIR}/../../include
 
 SRCS=	switch.c
 
+DEBUG= -g
+
 LDFLAGS +=	-L/usr/local/lib
 LDADD +=	-lutil -lssl -lcrypto -lm -lz -lsqlite3 -lpthread
 DPADD +=	${LIBUTIL} ${LIBSSL} ${LIBCRYPTO} ${LIBM} ${LIBZ} \
