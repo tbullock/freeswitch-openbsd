@@ -127,8 +127,6 @@ switch_core_hash_destroy(switch_hash_t **hash)
 	/* if we have public memory pool */
 	if (h->priv == SWITCH_TRUE)
 	    apr_pool_destroy(h->pool);
-	else
-	    apr_pool_clear(h->pool);
 
 	free(h);
 
