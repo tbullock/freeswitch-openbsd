@@ -32,8 +32,9 @@ LDADD +=	-lutil -lssl -lcrypto -lm -lz -lsqlite3 -lpthread
 DPADD +=	${LIBUTIL} ${LIBSSL} ${LIBCRYPTO} ${LIBM} ${LIBZ} \
 		${LIBSQLITE3} ${LIBPTHREAD}
 
-LDADD +=	../../lib/libfreeswitch/libfreeswitch.a
-LDADD +=	../../lib/libapr-shim/libapr-shim.a
+LDFLAGS += 	-L../../lib/libfreeswitch -L../../lib/libapr-shim
+LDADD +=	-lfs
+LDADD +=	-lfs_apr-shim
 
 # Rest are from ports
 LDADD +=	-laprutil-1

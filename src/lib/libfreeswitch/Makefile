@@ -13,8 +13,9 @@
 # OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 
-LIB=	freeswitch
+LIB=	fs
 LIBDIR=	/usr/local/lib
+NOPROFILE= true
 
 CPPFLAGS +=	-DENABLE_SRTP
 
@@ -68,6 +69,5 @@ SRCS=	g711.c switch_apr.c switch_buffer.c switch_caller.c \
 SRCS+=	stfu.c
 SRCS+=	libteletone_detect.c libteletone_generate.c
 SRCS+=	tpl.c
-
 
 .include <bsd.lib.mk>
