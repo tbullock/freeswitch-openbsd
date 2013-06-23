@@ -13,8 +13,9 @@
 # OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 
-LIB=	apr-shim
+LIB=	fs_apr-shim
 LIBDIR=	/usr/local/lib
+NOPROFILE= true
 
 CFLAGS +=	-I/usr/local/include/apr-1
 CFLAGS +=	-Wall
