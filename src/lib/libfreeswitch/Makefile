@@ -22,6 +22,7 @@ CPPFLAGS +=	-DENABLE_SRTP
 CFLAGS +=	-I/usr/local/include
 CFLAGS +=	-I/usr/local/include/apr-1
 CFLAGS +=	-I/usr/local/include/srtp
+CFLAGS +=	-I/usr/local/include/miniupnpc
 CFLAGS +=	-I${.CURDIR}/../../include
 CFLAGS +=	-Wall
 
