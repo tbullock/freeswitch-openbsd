@@ -64,7 +64,6 @@
 /languages/mod_spidermonkey/Makefile
 /languages/mod_spidermonkey/Makefile.in
 /languages/mod_spidermonkey/mod_spidermonkey.log
-/loggers/mod_console/Makefile
 /loggers/mod_logfile/Makefile
 /loggers/mod_syslog/Makefile
 /say/mod_say_en/Makefile
