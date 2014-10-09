@@ -143,7 +143,8 @@ static int init_upnp(void)
 	}
 	
 	if (dev) {
-		descXML = miniwget(dev->descURL, &descXMLsize);
+		/* TED: We're not dealing with link local, I think is is fine */
+		descXML = miniwget(dev->descURL, &descXMLsize, 0);
 
 		nat_globals.descURL = strdup(dev->descURL);
 
@@ -151,7 +152,8 @@ static int init_upnp(void)
 			parserootdesc(descXML, descXMLsize, &nat_globals.data);
 			free(descXML);
 			descXML = 0;
-			GetUPNPUrls(&nat_globals.urls, &nat_globals.data, dev->descURL);
+			/* TED: Scope ID to 0, I think this is ok */
+			GetUPNPUrls(&nat_globals.urls, &nat_globals.data, dev->descURL, 0);
 		} else {
 			switch_log_printf(SWITCH_CHANNEL_LOG, SWITCH_LOG_DEBUG, "Unable to retrieve device description XML (%s).\n", dev->descURL);
 		}
