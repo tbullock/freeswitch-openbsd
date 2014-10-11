@@ -12,15 +12,6 @@
 # ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 # OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
+SUBDIR = mod_cdr_csv mod_event_socket
 
-LIB=	mod_cdr_csv
-LIBDIR=	/usr/local/lib/fs_mod
-NOPROFILE= true
-
-CFLAGS += -I../../../include
-
-LINKS= ${LIBDIR}/lib${LIB}.so.${SHLIB_MAJOR}.${SHLIB_MINOR} ${LIBDIR}/${LIB}.so
-
-SRCS=	mod_cdr_csv.c
-
-.include <bsd.lib.mk>
+.include <bsd.subdir.mk>
