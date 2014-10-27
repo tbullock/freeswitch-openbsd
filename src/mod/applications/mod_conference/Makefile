@@ -12,6 +12,15 @@
 # ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 # OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-SUBDIR = mod_commands mod_conference 
 
-.include <bsd.subdir.mk>
+LIB=	mod_conference
+LIBDIR=	/usr/local/lib/fs_mod
+NOPROFILE= true
+
+CFLAGS += -I../../../include
+
+LINKS= ${LIBDIR}/lib${LIB}.so.${SHLIB_MAJOR}.${SHLIB_MINOR} ${LIBDIR}/${LIB}.so
+
+SRCS=	mod_conference.c
+
+.include <bsd.lib.mk>
