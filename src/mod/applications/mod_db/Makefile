@@ -13,7 +13,7 @@
 # OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 
-LIB=	mod_callcenter
+LIB=	mod_db
 LIBDIR=	/usr/local/lib/fs_mod
 NOPROFILE= true
 
@@ -21,6 +21,6 @@ CFLAGS += -I../../../include
 
 LINKS= ${LIBDIR}/lib${LIB}.so.${SHLIB_MAJOR}.${SHLIB_MINOR} ${LIBDIR}/${LIB}.so
 
-SRCS=	mod_callcenter.c
+SRCS=	mod_db.c
 
 .include <bsd.lib.mk>
