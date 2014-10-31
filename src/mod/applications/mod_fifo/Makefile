@@ -12,7 +12,15 @@
 # ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 # OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-SUBDIR = mod_callcenter mod_commands mod_conference mod_db mod_directory \
-	mod_dptools mod_esf mod_expr mod_fifo
 
-.include <bsd.subdir.mk>
+LIB=	mod_fifo
+LIBDIR=	/usr/local/lib/fs_mod
+NOPROFILE= true
+
+CFLAGS += -I../../../include
+
+LINKS= ${LIBDIR}/lib${LIB}.so.${SHLIB_MAJOR}.${SHLIB_MINOR} ${LIBDIR}/${LIB}.so
+
+SRCS=	mod_fifo.c
+
+.include <bsd.lib.mk>
