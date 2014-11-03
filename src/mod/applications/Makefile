@@ -13,6 +13,6 @@
 # OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 SUBDIR = mod_callcenter mod_commands mod_conference mod_db mod_directory \
-	mod_dptools mod_esf mod_expr mod_fifo
+	mod_dptools mod_esf mod_expr mod_fifo mod_hash
 
 .include <bsd.subdir.mk>
