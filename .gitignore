@@ -1,5 +1,6 @@
 src/bin/fsd/fsd.1.manlint
 src/bin/fsd/fsd
+src/bin/fs_cli/fs_cli
 fsd.core
 *~
 *.o

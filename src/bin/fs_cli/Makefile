@@ -16,22 +16,19 @@ PROG=	fs_cli
 BINDIR=	/usr/local/bin
 MANDIR=	/usr/local/man/man
 
-MAN=	fsd.1
+NOMAN=	noman
 
-CFLAGS +=	-I/usr/local/include
-CFLAGS +=	-I/usr/local/include/srtp
-CFLAGS +=	-I${.CURDIR}/../../include
+CFLAGS +=	-I../../lib/libesl/include
+CFLAGS +=	-DHAVE_EDITLINE
 
 SRCS=	fs_cli.c
 
 DEBUG= -g
 
-LDFLAGS +=	-L/usr/local/lib
-LDADD +=	-ledit -lssl -lcrypto -lm -lz -lsqlite3 -lpthread
-DPADD +=	${LIBUTIL} ${LIBSSL} ${LIBCRYPTO} ${LIBM} ${LIBZ} \
-		${LIBSQLITE3} ${LIBPTHREAD}
+LDADD +=	-ledit -lpthread -lncurses -lm -lesl
+DPADD +=	${LIBEDIT} ${LIBPTHREAD} ${LIBNCURSES} ${LIBM}
 
-LDFLAGS += 	-L../../lib/libfreeswitch -L../../lib/libapr-shim
+LDFLAGS += 	-L../../lib/libesl
 
 
 
