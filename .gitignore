@@ -149,7 +149,6 @@ Release/
 /scripts/gentls_cert
 
 /src/mod/applications/mod_easyroute/Makefile
-/src/mod/applications/mod_hash/Makefile
 /src/mod/applications/mod_hash/Makefile.in
 /src/mod/applications/mod_hash/mod_hash.log
 /src/mod/applications/mod_lcr/Makefile
