@@ -1,4 +1,4 @@
-# Copyright (c) 2013 Ted Bullock <tbullock@northernartifex.com>
+# Copyright (c) 2014 Ted Bullock <tbullock@northernartifex.com>
 #
 # Permission to use, copy, modify, and distribute this software for any
 # purpose with or without fee is hereby granted, provided that the above
@@ -12,6 +12,6 @@
 # ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 # OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-SUBDIR = libapr-shim libfreeswitch
+SUBDIR = libapr-shim libfreeswitch libesl
 
 .include <bsd.subdir.mk>
