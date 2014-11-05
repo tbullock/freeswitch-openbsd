@@ -43,7 +43,7 @@
 
 #include <stdio.h>
 #include <string.h>
-
+#include <termios.h>
 #include <unistd.h>
 #include <fcntl.h>
 #include <errno.h>
@@ -55,6 +55,7 @@
 #include <stdint.h>
 #include <tiffio.h>
 #include <spandsp.h>
+
 
 
 typedef enum {

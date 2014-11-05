@@ -13,7 +13,7 @@
 # OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 
-LIB=	mod_db
+LIB=	mod_spandsp
 LIBDIR=	/usr/local/lib/fs_mod
 NOPROFILE= true
 

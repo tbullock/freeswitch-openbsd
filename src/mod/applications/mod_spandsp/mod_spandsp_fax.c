@@ -718,8 +718,12 @@ static switch_status_t spanfax_init(pvt_t *pvt, transport_mode_t trans_mode)
 
 		fax_set_transmit_on_idle(fax, TRUE);
 
+		/* 2014-11-04 - Ted: This is using API from spandsp snapshot, until
+		 * openbsd ports has imported a spandsp version >= 0.0.7, we cannot
+		 * use this; Fortunately just logging so comment out for now
 		span_log_set_message_handler(fax_get_logging_state(fax), spanfax_log_message, pvt);
 		span_log_set_message_handler(t30_get_logging_state(t30), spanfax_log_message, pvt);
+		*/
 
 		if (pvt->verbose) {
 			span_log_set_level(fax_get_logging_state(fax), SPAN_LOG_SHOW_SEVERITY | SPAN_LOG_SHOW_PROTOCOL | SPAN_LOG_FLOW);
@@ -774,8 +778,12 @@ static switch_status_t spanfax_init(pvt_t *pvt, transport_mode_t trans_mode)
 				}
 			}
 
+			/* 2014-11-04 - Ted: This is using API from spandsp snapshot, until
+			 * openbsd ports has imported a spandsp version >= 0.0.7, we cannot
+			 * use this; Fortunately just logging so comment out for now
 			span_log_set_message_handler(t38_terminal_get_logging_state(t38), spanfax_log_message, pvt);
 			span_log_set_message_handler(t30_get_logging_state(t30), spanfax_log_message, pvt);
+			*/
 
 			if (pvt->verbose) {
 				span_log_set_level(t38_terminal_get_logging_state(t38), SPAN_LOG_SHOW_SEVERITY | SPAN_LOG_SHOW_PROTOCOL | SPAN_LOG_FLOW);
@@ -829,8 +837,12 @@ static switch_status_t spanfax_init(pvt_t *pvt, transport_mode_t trans_mode)
 		}
 
 
+		/* 2014-11-04 - Ted: This is using API from spandsp snapshot, until
+		 * openbsd ports has imported a spandsp version >= 0.0.7, we cannot
+		 * use this; Fortunately just logging so comment out for now
 		span_log_set_message_handler(t38_gateway_get_logging_state(pvt->t38_gateway_state), spanfax_log_message, pvt);
 		span_log_set_message_handler(t38_core_get_logging_state(pvt->t38_core), spanfax_log_message, pvt);
+		 */
 
 		if (pvt->verbose) {
 			span_log_set_level(t38_gateway_get_logging_state(pvt->t38_gateway_state), SPAN_LOG_SHOW_SEVERITY | SPAN_LOG_SHOW_PROTOCOL | SPAN_LOG_FLOW);
