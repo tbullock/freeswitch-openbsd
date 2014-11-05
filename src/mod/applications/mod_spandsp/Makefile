@@ -20,7 +20,7 @@ NOPROFILE= true
 CFLAGS += -I../../../include
 CFLAGS += -I/usr/local/include
 
-DPADD+=	/usr/local/include/lipspandsp.a
+LDADD+=	-L/usr/local/lib -lspandsp
 
 LINKS= ${LIBDIR}/lib${LIB}.so.${SHLIB_MAJOR}.${SHLIB_MINOR} ${LIBDIR}/${LIB}.so
 

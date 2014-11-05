@@ -22,14 +22,10 @@ CFLAGS += -I../../../include
 CFLAGS += -I../mod_esl
 CFLAGS += -I../../../lib/libesl/include
 
-#LDADD+=	 -L$../../../lib/libesl -static -lesl
+LDADD+=		-L../../../lib/libesl -lesl
 
 LINKS= ${LIBDIR}/lib${LIB}.so.${SHLIB_MAJOR}.${SHLIB_MINOR} ${LIBDIR}/${LIB}.so
 
-ESLSRC= ../../../lib/libesl
-
-SRCS=	mod_hash.c ${ESLSRC}/esl.c ${ESLSRC}/esl_buffer.c \
-		${ESLSRC}/esl_config.c ${ESLSRC}/esl_event.c ${ESLSRC}/esl_json.c \
-        ${ESLSRC}/esl_threadmutex.c
+SRCS=	mod_hash.c 
 
 .include <bsd.lib.mk>
