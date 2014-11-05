@@ -1276,7 +1276,12 @@ static void *SWITCH_THREAD_FUNC modem_thread(switch_thread_t *thread, void *obj)
 				modem->last_event = switch_time_now();
 			}
 
+			/* 2014-11-04 - Ted: This is using API from spandsp snapshot, until
+			 * openbsd ports has imported a spandsp version >= 0.0.7, we cannot
+			 * use this; Fortunately just logging so comment out for now
 			avail = t31_at_rx_free_space(modem->t31_state);
+			 */
+			avail = T31_TX_BUF_LEN - (modem->t31_state->tx.in_bytes - modem->t31_state->tx.out_bytes) - 1;
 			if (avail == 0) {
 				switch_log_printf(SWITCH_CHANNEL_LOG, SWITCH_LOG_WARNING, "Buffer Full, retrying....\n");
 				switch_yield(10000);
