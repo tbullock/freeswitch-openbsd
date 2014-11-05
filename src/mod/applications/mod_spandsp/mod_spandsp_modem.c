@@ -338,6 +338,9 @@ switch_status_t modem_init(modem_t *modem, modem_control_handler_t control_handl
 	}
 	modem->t38_core = t31_get_t38_core_state(modem->t31_state);
 
+	/* 2014-11-04 - Ted: This is using API from spandsp snapshot, until
+	 * openbsd ports has imported a spandsp version >= 0.0.7, we cannot
+	 * use this; Fortunately just logging so comment out for now
 	if (spandsp_globals.modem_verbose) {
 		logging = t31_get_logging_state(modem->t31_state);
 		span_log_set_message_handler(logging, mod_spandsp_log_message, NULL);
@@ -359,6 +362,7 @@ switch_status_t modem_init(modem_t *modem, modem_control_handler_t control_handl
 		span_log_set_message_handler(logging, mod_spandsp_log_message, NULL);
 		span_log_set_level(logging, SPAN_LOG_SHOW_SEVERITY | SPAN_LOG_SHOW_PROTOCOL | SPAN_LOG_FLOW);
 	}
+	*/
 
 	modem->control_handler = control_handler;
 	modem->flags = 0;
@@ -452,7 +456,7 @@ static switch_status_t channel_on_init(switch_core_session_t *session)
 		ioctl(tech_pvt->modem->slave, TIOCMSET, &tioflags);
 #endif
 
-		at_state = t31_get_at_state(tech_pvt->modem->t31_state);
+		at_state = &(tech_pvt->modem->t31_state->at_state);
 		at_reset_call_info(at_state);
 		at_set_call_info(at_state, "DATE", call_date);
 		at_set_call_info(at_state, "TIME", call_time);
@@ -1104,7 +1108,7 @@ static int control_handler(modem_t *modem, const char *num, int op)
 			switch_log_printf(SWITCH_CHANNEL_LOG, SWITCH_LOG_DEBUG1,
 							  "Modem %s [%s] - CTS %s\n", modem->devlink, modem_state2name(modem_get_state(modem)), (int) (intptr_t) num ? "XON" : "XOFF");
 
-			at_state = t31_get_at_state(modem->t31_state);
+			at_state = &(modem->t31_state->at_state);
 			if (num) {
 				x[0] = 0x11;
 				t31_at_tx_handler(at_state, modem, x, 1);
