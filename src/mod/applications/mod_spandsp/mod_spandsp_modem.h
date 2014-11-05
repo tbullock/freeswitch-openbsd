@@ -56,6 +56,8 @@
 #include <tiffio.h>
 #include <spandsp.h>
 
+/* Very temporary until openbsd ports includes spandsp 0.0.7 */
+#include <spandsp/private/t31.h>
 
 
 typedef enum {
