@@ -12,15 +12,6 @@
 # ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 # OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
+SUBDIR = mod_local_stream mod_native_file mod_sndfile mod_tone_stream
 
-LIB=	mod_local_stream
-LIBDIR=	/usr/local/lib/fs_mod
-NOPROFILE= true
-
-CFLAGS += -I../../../include
-
-LINKS= ${LIBDIR}/lib${LIB}.so.${SHLIB_MAJOR}.${SHLIB_MINOR} ${LIBDIR}/${LIB}.so
-
-SRCS=	mod_local_stream.c
-
-.include <bsd.lib.mk>
+.include <bsd.subdir.mk>
