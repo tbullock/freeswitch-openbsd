@@ -12,6 +12,15 @@
 # ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 # OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-SUBDIR = endpoints loggers applications event_handlers dialplans
 
-.include <bsd.subdir.mk>
+LIB=	mod_dialplan_xml
+LIBDIR=	/usr/local/lib/fs_mod
+NOPROFILE= true
+
+CFLAGS += -I../../../include
+
+LINKS= ${LIBDIR}/lib${LIB}.so.${SHLIB_MAJOR}.${SHLIB_MINOR} ${LIBDIR}/${LIB}.so
+
+SRCS=	mod_dialplan_xml.c
+
+.include <bsd.lib.mk>

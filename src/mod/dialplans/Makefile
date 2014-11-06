@@ -12,6 +12,6 @@
 # ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 # OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-SUBDIR = endpoints loggers applications event_handlers dialplans
+SUBDIR = mod_dialplan_xml
 
 .include <bsd.subdir.mk>
