@@ -13,7 +13,7 @@
 # OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 
-LIB=	mod_local_stream
+LIB=	mod_native_file
 LIBDIR=	/usr/local/lib/fs_mod
 NOPROFILE= true
 
@@ -21,6 +21,6 @@ CFLAGS += -I../../../include
 
 LINKS= ${LIBDIR}/lib${LIB}.so.${SHLIB_MAJOR}.${SHLIB_MINOR} ${LIBDIR}/${LIB}.so
 
-SRCS=	mod_local_stream.c
+SRCS=	mod_native_file.c
 
 .include <bsd.lib.mk>
