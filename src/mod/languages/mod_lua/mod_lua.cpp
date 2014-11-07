@@ -390,10 +390,10 @@ int lua_thread(const char *text)
 	switch_thread_t *thread;
 	switch_threadattr_t *thd_attr = NULL;
 	switch_memory_pool_t *pool;
-	lua_thread_helper *lth;
+	struct lua_thread_helper *lth;
 
 	switch_core_new_memory_pool(&pool);
-	lth = (lua_thread_helper *) switch_core_alloc(pool, sizeof(*lth));
+	lth = (struct lua_thread_helper *) switch_core_alloc(pool, sizeof(*lth));
 	lth->pool = pool;
 	lth->input_code = switch_core_strdup(lth->pool, text);
 
