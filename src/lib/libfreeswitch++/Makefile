@@ -1,4 +1,4 @@
-# Copyright (c) 2014 Ted Bullock <tbullock@northernartifex.com>
+# Copyright (c) 2013 Ted Bullock <tbullock@northernartifex.com>
 #
 # Permission to use, copy, modify, and distribute this software for any
 # purpose with or without fee is hereby granted, provided that the above
@@ -12,6 +12,23 @@
 # ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 # OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-SUBDIR = libapr-shim libfreeswitch libfreeswitch++ libesl
 
-.include <bsd.subdir.mk>
+LIB=	fs++
+LIBDIR=	/usr/local/lib
+NOPROFILE= true
+
+CPPFLAGS +=	-DENABLE_SRTP
+
+CFLAGS +=	-I/usr/local/include
+CFLAGS +=	-I${.CURDIR}/../../include
+CFLAGS +=	-Wall
+
+CC=	c++
+
+DEBUG= -g
+
+# For the lua binding...
+SRCS+=	switch_cpp.cpp
+
+
+.include <bsd.lib.mk>

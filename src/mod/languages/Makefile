@@ -12,6 +12,6 @@
 # ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 # OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-SUBDIR = libapr-shim libfreeswitch libfreeswitch++ libesl
+SUBDIR = mod_lua
 
 .include <bsd.subdir.mk>

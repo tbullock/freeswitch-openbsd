@@ -12,6 +12,18 @@
 # ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 # OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-SUBDIR = libapr-shim libfreeswitch libfreeswitch++ libesl
 
-.include <bsd.subdir.mk>
+LIB=	mod_lua
+LIBDIR=	/usr/local/lib/fs_mod
+NOPROFILE= true
+
+CFLAGS += -I../../../include
+CFLAGS += -I/usr/local/include/lua-5.1
+
+LDADD+=	-L/usr/local/lib -llua5.1 -avoid-version -module
+
+LINKS= ${LIBDIR}/lib${LIB}.so.${SHLIB_MAJOR}.${SHLIB_MINOR} ${LIBDIR}/${LIB}.so
+
+SRCS=	mod_lua.cpp freeswitch_lua.cpp mod_lua_wrap.cpp 
+
+.include <bsd.lib.mk>
