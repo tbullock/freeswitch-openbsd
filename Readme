@@ -3,19 +3,25 @@ Freeswitch on OpenBSD
 
 This is a shallow fork of Freeswitch for use on OpenBSD.
 
-Reason
-======
+Rationale
+=========
 
-Freeswitch bundles almost all its dependancies inside its source tree, which is
-a nightmare for packagers to work around.  Since OpenBSD and Freeswitch are 
-important to me and my business, I am taking the time to build this.
+The upstream version of freeswitch has several characteristics which preclude it
+from being included in OpenBSD Ports. This project aims to resolve the problems
+so that it can be provided as a port.
 
-As testament to how difficult it is to package Freeswitch, none of the major
-linux distributions have made official packages.
-
-Also at the time of writing, Freeswitch does not compile on OpenBSD, and I can
-not possibly be bothered to replicate all the porting work that was done on
-the dependencies to get them to 'work on OpenBSD' (yawn).
+1. Library dependancies are bundled inside its source tree. Most of these
+   libraries are already available as ports from OpenBSD and they are generally
+   unsubstantially changed from their original upstream versions.
+2. Configuration, static resources, logging, binary modules, etc are installed
+   in non-standard locations.
+3. Upstream freeswitch has a history of breaking their build against (Open)BSD
+   targets on a regular basis and show dramatic ignorance of the environment.
+4. Upstream installation script is unweildy and unreliable. 
+5. Slow down the rate at which changes are introduced and avoid introducing
+   bizarre featues unrelated to a reliable SIP softswitch.
+6. Provide a stable, tested version of freeswitch known to work on OpenBSD.
+7. Introduce OpenBSD security idioms.
 
 Point
 =====
@@ -28,23 +34,25 @@ Dependencies
 
 We depend on the following OpenBSD ports:
 
-aprutil-1
-apr-1
+apr
+apr-util
 curl
-idn
-pcre
-srtp	
-speex
-speexdsp
-iconv
-intl
-natpmp
+flac
+jpeg
+libidn
+libnatpmp
+libogg
+libsndfile
+libsrtp
+libvorbis
+lua   (5.1.x, not 5.2)
 miniupnpc
+pcre
 spandsp
-<more to follow as work progresses>
+speex
+tiff
 
-Additionally, FreeSWITCH depends on sqlite3 which is a system library on
-OpenBSD. See problems below regarding this.
+Additionally, FreeSWITCH depends on sqlite3 which is provided in base OpenBSD.
 
 Building
 ========
@@ -53,30 +61,75 @@ Install the list of dependencies
 
 Installation from source should be as simple as:
 
-> make && make install
+> make && sudo make install
 
-Proviso: Until the porting work is actually complete the previous command is
-basically a fantasy.
+Running the build on an 5.6-current i386 VM the compile completes in 6 minutes
+    6m3.57s real     4m31.09s user     0m59.31s system
+
+You will need to copy your configuration to /etc/freeswitch, a sample one is 
+included in git.
+
+Also, for now you will need to get your sounds directly from upstream freeswitch
+and install them to /usr/local/share/freeswitch/(sounds go here)
+
+After the software is installed you can launch the daemon by calling:
+
+# fsd
+
+No init script exists yet, please stay tuned.
+
+What is Installed?
+==================
+
+Here is what is installed
+
+-Executables (/usr/local/bin)
+  fsd
+  fs_cli
+-Libraries (/usr/local/lib)
+  libapr-shim
+  libesl
+  libfs
+  libfs++
+-Modules (/usr/local/lib/fs_mod)
+  mod_callcenter.so
+  mod_cdr_csv.so
+  mod_commands.so
+  mod_conference.so
+  mod_console.so
+  mod_db.so
+  mod_dialplan_xml.so
+  mod_directory.so
+  mod_dptools.so
+  mod_esf.so
+  mod_event_socket.so
+  mod_expr.so
+  mod_fifo.so
+  mod_hash.so
+  mod_local_stream.so
+  mod_logfile.so
+  mod_loopback.so
+  mod_lua.so
+  mod_native_file.so
+  mod_sndfile.so
+  mod_sofia.so
+  mod_spandsp.so
+  mod_tone_stream.so
+  mod_valet_parking.so
+  mod_voicemail.so
+
 
 Problems
 ========
 
-- if HAVE_SETRLIMIT is defined we crash and burn instantly
-- mime.types is hard coded
-	- What else is hard coded?
-	- ideally we should point at freeswitch.xml and it should specify
-	- wtf is a softswitch doing loading a giant list of mime types
-		- Can we not just specify the couple it needs by hand?
-- According to FreeSWITCH developers, the in-tree version of sqlite is heavily
-  modified to the point where it does not look like upstream sqlite. This may
-  prove to be a major problem for this project in that, to use the in-tree
-  version may require a dedicated porting effort to introduce OpenBSD specific
-  changes just to make that one library function properly.
-
+- Crash on calling shutdown (due to apr hashing shim changes)
 
 Things to do
 ============
 
+- Port mod_say
+- Create init script to launch the daemon
+- Create port and tgz package
 - Current launcher (switch.c) is pretty heavy (1000+ lines), perhaps re-write it
 	- Launcher should do only this (more or less):
 		- Load freeswitch.xml (or user specified equivalent)
@@ -90,3 +143,8 @@ Criticisms
 - Configuration is really heavy. A scan of the vanilla config folder from
   the source tree shows there are 248 items weighing a heafty 667.5 kB.
 - Launcher doesn't appear to use getopt for some reason?
+- mime.types is hard coded
+	- What else is hard coded?
+	- ideally we should point at freeswitch.xml and it should specify
+	- wtf is a softswitch doing loading a giant list of mime types
+		- Can we not just specify the couple it needs by hand?

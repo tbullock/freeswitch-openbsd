@@ -2039,7 +2039,7 @@ SWITCH_DECLARE(switch_status_t) switch_core_init_and_modload(switch_core_flag_t 
 	char *cmd;
 	int x = 0;
 	const char *use = NULL;
-#include "cc.h"
+/*#include "cc.h"*/
 
 
 	if (switch_core_init(flags, console, err) != SWITCH_STATUS_SUCCESS) {
@@ -2077,7 +2077,8 @@ SWITCH_DECLARE(switch_status_t) switch_core_init_and_modload(switch_core_flag_t 
 
 	switch_core_screen_size(&x, NULL);
 
-	use = (x > 100) ? cc : cc_s;
+	/* use = (x > 100) ? cc : cc_s;*/
+	use = "";
 
 #ifdef WIN32
 	switch_log_printf(SWITCH_CHANNEL_LOG, SWITCH_LOG_CONSOLE, "%s%s\n\n", switch_core_banner(), use);
