@@ -12,17 +12,6 @@
 # ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 # OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
+SUBDIR = mod_xml_cdr
 
-LIB=	mod_xml_cdr
-LIBDIR=	/usr/local/lib/fs_mod
-NOPROFILE= true
-
-CFLAGS += -I../../../include
-CFLAGS += -I/usr/local/include
-LDADD += -L/usr/local/lib/ -lcurl
-
-LINKS= ${LIBDIR}/lib${LIB}.so.${SHLIB_MAJOR}.${SHLIB_MINOR} ${LIBDIR}/${LIB}.so
-
-SRCS=	mod_xml_cdr.c
-
-.include <bsd.lib.mk>
+.include <bsd.subdir.mk>
