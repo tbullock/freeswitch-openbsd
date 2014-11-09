@@ -122,8 +122,6 @@ Here is what is installed
 Problems
 ========
 
-- Crash on calling shutdown (due to apr hashing shim changes)
-
 Things to do
 ============
 
