@@ -13,6 +13,6 @@
 # OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 SUBDIR = endpoints loggers applications event_handlers dialplans formats \
-	languages
+	languages xml_int
 
 .include <bsd.subdir.mk>
