@@ -128,7 +128,7 @@ switch_core_hash_insert(switch_hash_t *h,
 {
 	switch_assert(h);
 	switch_assert(key);
-	switch_assert(data);
+	/*switch_assert(data);*/
 
 	apr_hash_set(h->ht,
 	             key,
