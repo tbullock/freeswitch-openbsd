@@ -12,6 +12,15 @@
 # ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 # OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-SUBDIR = mod_console mod_logfile mod_syslog
 
-.include <bsd.subdir.mk>
+LIB=	mod_syslog
+LIBDIR=	/usr/local/lib/fs_mod
+NOPROFILE= true
+
+CFLAGS += -I../../../include
+
+LINKS= ${LIBDIR}/lib${LIB}.so.${SHLIB_MAJOR}.${SHLIB_MINOR} ${LIBDIR}/${LIB}.so
+
+SRCS=	mod_syslog.c
+
+.include <bsd.lib.mk>
