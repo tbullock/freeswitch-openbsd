@@ -95,20 +95,19 @@ static const struct value_mapping ERROR_TYPES[] = {
 
 SWITCH_DECLARE(void) switch_stun_random_string(char *buf, uint16_t len, char *set)
 {
-	char chars[] = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-	int max;
+	char anum[] = "abcdefghijklmnopqrstuvwxyz"   \
+	              "ABCDEFGHIJKLMNOPQRSTUVWXYZ"   \
+	              "0123456789";
+	size_t max;
 	uint16_t x;
 
-	if (!set) {
-		set = chars;
-	}
+	if (set == NULL) 
+		set = anum;
 
-	max = (int) strlen(set);
+	max = strlen(set);
 
-	for (x = 0; x < len; x++) {
-		int j = (int) (max * 1.0 * rand() / (RAND_MAX + 1.0));
-		buf[x] = set[j];
-	}
+	for (x = 0; x < len; x++)
+		buf[x] = set[arc4random_uniform(max)];
 }
 
 
