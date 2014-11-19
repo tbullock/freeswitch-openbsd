@@ -1993,7 +1993,7 @@ SWITCH_DECLARE(switch_status_t) switch_rtp_create(switch_rtp_t **new_rtp_session
 	if (switch_test_flag(rtp_session, SWITCH_RTP_FLAG_ENABLE_RTCP)) {
 		switch_sockaddr_create(&rtp_session->rtcp_from_addr, pool);
 	}
-	rtp_session->seq = (uint16_t) rand();
+	rtp_session->seq = (uint16_t) (arc4random() & 0xFFFF);
 	rtp_session->ssrc = (uint32_t) ((intptr_t) rtp_session + (uint32_t) switch_epoch_time_now(NULL));
 
 	rtp_session->send_msg.header.ssrc = htonl(rtp_session->ssrc);
