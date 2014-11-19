@@ -125,14 +125,26 @@ Problems
 Things to do
 ============
 
-- Port mod_say
 - Create init script to launch the daemon
+- Enable modules
+	- mod_perl
+	- mod_flite
+	- mod_shout
+	- mod_bcg729
+- Strip configuration to min required to operate
 - Create port and tgz package
 - Current launcher (switch.c) is pretty heavy (1000+ lines), perhaps re-write it
 	- Launcher should do only this (more or less):
 		- Load freeswitch.xml (or user specified equivalent)
 		- Setup signal handling
 		- Daemonize
+- Audit code
+	- Change rand/srand to arc4random
+	- Change switch_* namespace string functions to intrinsics
+	- Change strcpy to strlcpy
+	- Remove APR shim (remove/reimplement functionality)
+	- Check all the calls to malloc,calloc,realloc,strdup,asprintf 
+	- Enable rigorous malloc.conf features
 
 Criticisms
 ==========
