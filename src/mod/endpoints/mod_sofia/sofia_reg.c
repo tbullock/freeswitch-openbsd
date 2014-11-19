@@ -1443,11 +1443,8 @@ uint8_t sofia_reg_handle_register(nua_t *nua, sofia_profile_t *profile, nua_hand
 			if ( (( exp_max_deviation_var = atoi(switch_event_get_header_nil(*v_event, "sip-expires-max-deviation")) )) ||
 			     (( exp_max_deviation_var = profile->sip_expires_max_deviation )) ) {
 				if (exp_max_deviation_var > 0) {
-					int exp_deviation;
-					srand( (unsigned) ( (unsigned)(intptr_t)switch_thread_self() + switch_micro_time_now() ) );
 					/* random number between negative exp_max_deviation_var and positive exp_max_deviation_var: */
-					exp_deviation = ( rand() % ( exp_max_deviation_var * 2 ) ) - exp_max_deviation_var;
-					exptime += exp_deviation;
+					exptime += arc4random_uniform(2 * exp_max_deviation_var + 1) - exp_max_deviation_var;
 				}
 			}
 
