@@ -12,6 +12,6 @@
 # ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF
 # OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
-SUBDIR = mod_cdr_csv mod_event_socket
+SUBDIR = mod_cdr_csv mod_cdr_sqlite mod_event_socket
 
 .include <bsd.subdir.mk>
