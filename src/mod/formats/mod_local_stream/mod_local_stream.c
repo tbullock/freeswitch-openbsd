@@ -101,15 +101,6 @@ struct local_stream_source {
 
 typedef struct local_stream_source local_stream_source_t;
 
-static int do_rand(void)
-{
-	double r;
-	int index;
-	r = ((double) rand() / ((double) (RAND_MAX) + (double) (1)));
-	index = (int) (r * 9) + 1;
-	return index;
-}
-
 static void *SWITCH_THREAD_FUNC read_stream_thread(switch_thread_t *thread, void *obj)
 {
 	local_stream_source_t *source = obj;
@@ -136,7 +127,7 @@ static void *SWITCH_THREAD_FUNC read_stream_thread(switch_thread_t *thread, void
 	dist_buf = switch_core_alloc(source->pool, source->prebuf + 10);
 
 	if (source->shuffle) {
-		skip = do_rand();
+		skip = arc4random_uniform(9) + 1;
 	}
 
 	switch_thread_rwlock_create(&source->rwlock, source->pool);
@@ -316,7 +307,7 @@ static void *SWITCH_THREAD_FUNC read_stream_thread(switch_thread_t *thread, void
 
 			switch_core_timer_destroy(&timer);
 			if (RUNNING && source->shuffle) {
-				skip = do_rand();
+				skip = arc4random_uniform(9) + 1;
 			}
 		}
 
