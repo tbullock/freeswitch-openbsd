@@ -270,8 +270,10 @@ void nua_session_usage_remove(nua_handle_t *nh,
       ss->ss_reporting = 0;
     }
 
-    if (cr == du->du_cr && cr->cr_orq)
+    if (cr == du->du_cr && cr->cr_orq) {
+      nua_client_request_unref(cr);
       continue;
+    }
 
     if (cr->cr_status < 200) {
       nua_stack_event(nh->nh_nua, nh,
@@ -4500,9 +4502,9 @@ session_timer_add_headers(struct session_timer *t,
 
   sip_add_tl(msg, sip,
 			 TAG_IF(expires != 0, SIPTAG_SESSION_EXPIRES(x)),
-			 TAG_IF(min != 0
+			 TAG_IF((!uas || sip->sip_status->st_status == 422) && (min != 0
 					/* Min-SE: 0 is optional with initial INVITE */
-					|| !initial,
+					 || !initial),
 					SIPTAG_MIN_SE(min_se)),
 			 TAG_IF(autorequire && refresher == nua_remote_refresher && expires != 0, SIPTAG_REQUIRE_STR("timer")),
 			 TAG_END());

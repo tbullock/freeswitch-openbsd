@@ -1584,7 +1584,7 @@ static void parse_media_attr(sdp_parser_t *p, char *r, sdp_media_t *m,
 
   if (p->pr_mode_manual)
     ;
-  else if (su_casematch(name, "inactive")) {
+  else if (m->m_port == 0 || su_casematch(name, "inactive")) {
     m->m_mode = sdp_inactive;
     return;
   }
@@ -1803,7 +1803,9 @@ static int parse_ul(sdp_parser_t *p, char **r,
 }
 
 #if !HAVE_STRTOULL
-unsigned longlong strtoull(char const *string, char **return_end, int base);
+#if !((defined(WIN32) || defined(_WIN32)) && (_MSC_VER >= 1800))
+unsigned long long strtoull(char const *string, char **return_end, int base);
+#endif
 #endif
 
 /*

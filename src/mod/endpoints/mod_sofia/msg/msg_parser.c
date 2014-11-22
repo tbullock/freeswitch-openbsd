@@ -739,7 +739,7 @@ issize_t msg_buf_external(msg_t *msg,
 			  usize_t N,
 			  usize_t blocksize)
 {
-  msg_buffer_t *ext, *b, **bb;
+  msg_buffer_t *ext = NULL, *b, **bb;
   size_t i, I;
 
   assert(N <= 128 * 1024);
@@ -1680,7 +1680,7 @@ size_t msg_header_prepare(msg_mclass_t const *mc, int flags,
     n += m;
 
     if (hc->hc_name) {
-      if (!comma_list || !next || next == *return_next)
+      if (!hc->hc_name[0] || !comma_list || !next || next == *return_next)
 	s = CRLF, m = 2;
       /* Else encode continuation */
       else if (compact)
@@ -2470,8 +2470,6 @@ int msg_header_prepend(msg_t *msg,
 msg_header_t **
 msg_hclass_offset(msg_mclass_t const *mc, msg_pub_t const *mo, msg_hclass_t *hc)
 {
-  int i;
-
   assert(mc && hc);
 
   if (mc == NULL || hc == NULL)
@@ -2483,12 +2481,16 @@ msg_hclass_offset(msg_mclass_t const *mc, msg_pub_t const *mo, msg_hclass_t *hc)
       if (mc->mc_hash[j].hr_class == hc) {
 	return (msg_header_t **)((char *)mo + mc->mc_hash[j].hr_offset);
       }
-  }
-  else
+  } else {
     /* Header has no name. */
-    for (i = 0; i <= 6; i++)
-      if (hc->hc_hash == mc->mc_request[i].hr_class->hc_hash)
-	return (msg_header_t **)((char *)mo + mc->mc_request[i].hr_offset);
+    if (hc->hc_hash == mc->mc_request[0].hr_class->hc_hash) return (msg_header_t **)((char *)mo + mc->mc_request[0].hr_offset);
+    if (hc->hc_hash == mc->mc_status[0].hr_class->hc_hash) return (msg_header_t **)((char *)mo + mc->mc_status[0].hr_offset);
+    if (hc->hc_hash == mc->mc_separator[0].hr_class->hc_hash) return (msg_header_t **)((char *)mo + mc->mc_separator[0].hr_offset);
+    if (hc->hc_hash == mc->mc_payload[0].hr_class->hc_hash) return (msg_header_t **)((char *)mo + mc->mc_payload[0].hr_offset);
+    if (hc->hc_hash == mc->mc_unknown[0].hr_class->hc_hash) return (msg_header_t **)((char *)mo + mc->mc_unknown[0].hr_offset);
+    if (hc->hc_hash == mc->mc_error[0].hr_class->hc_hash) return (msg_header_t **)((char *)mo + mc->mc_error[0].hr_offset);
+    if (hc->hc_hash == mc->mc_multipart[0].hr_class->hc_hash) return (msg_header_t **)((char *)mo + mc->mc_multipart[0].hr_offset);
+  }
 
   return NULL;
 }

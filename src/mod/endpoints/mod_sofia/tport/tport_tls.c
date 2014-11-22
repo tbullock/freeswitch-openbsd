@@ -202,7 +202,7 @@ void tls_set_default(tls_issues_t *i)
   i->key = i->key ? i->key : i->cert;
   i->randFile = i->randFile ? i->randFile : "tls_seed.dat";
   i->CAfile = i->CAfile ? i->CAfile : "cafile.pem";
-  i->cipher = i->cipher ? i->cipher : "ALL:!ADH:!LOW:!EXP:!MD5:@STRENGTH";
+  i->ciphers = i->ciphers ? i->ciphers : "!eNULL:!aNULL:!EXP:!LOW:!MD5:ALL:@STRENGTH";
   /* Default SIP cipher */
   /* "RSA-WITH-AES-128-CBC-SHA"; */
   /* RFC-2543-compatibility ciphersuite */
@@ -264,6 +264,35 @@ int tls_verify_cb(int ok, X509_STORE_CTX *store)
 }
 
 static
+int tls_init_ecdh_curve(tls_t *tls)
+{
+#if OPENSSL_VERSION_NUMBER >= 0x0090800fL
+#ifndef OPENSSL_NO_ECDH
+  int nid;
+  EC_KEY *ecdh;
+  if (!(nid = OBJ_sn2nid("prime256v1"))) {
+    tls_log_errors(1, "Couldn't find specified curve", 0);
+    errno = EIO;
+    return -1;
+  }
+  if (!(ecdh = EC_KEY_new_by_curve_name(nid))) {
+    tls_log_errors(1, "Couldn't create specified curve", 0);
+    errno = EIO;
+    return -1;
+  }
+  SSL_CTX_set_options(tls->ctx, SSL_OP_SINGLE_ECDH_USE);
+  SSL_CTX_set_tmp_ecdh(tls->ctx, ecdh);
+  EC_KEY_free(ecdh);
+  return 0;
+#else
+  return -1;
+#endif
+#else
+  return -1;
+#endif
+}
+
+static
 int tls_init_context(tls_t *tls, tls_issues_t const *ti)
 {
   int verify;
@@ -291,28 +320,32 @@ int tls_init_context(tls_t *tls, tls_issues_t const *ti)
   signal(SIGPIPE, SIG_IGN);
 #endif
 
-  if (tls->ctx == NULL) {
-    const SSL_METHOD *meth;
-
-    /* meth = SSLv3_method(); */
-    /* meth = SSLv23_method(); */
-
-    if (ti->version)
-      meth = TLSv1_method();
-    else
-      meth = SSLv23_method();
-
-    tls->ctx = SSL_CTX_new((SSL_METHOD*)meth);
-	SSL_CTX_sess_set_remove_cb(tls->ctx, NULL);
-  }
-
-  if (tls->ctx == NULL) {
-    tls_log_errors(1, "tls_init_context", 0);
-    errno = EIO;
-    return -1;
-  }
-
+  if (tls->ctx == NULL)
+    if (!(tls->ctx = SSL_CTX_new((SSL_METHOD*)SSLv23_method()))) {
+      tls_log_errors(1, "SSL_CTX_new() failed", 0);
+      errno = EIO;
+      return -1;
+    }
+  if (!(ti->version & TPTLS_VERSION_SSLv2))
+    SSL_CTX_set_options(tls->ctx, SSL_OP_NO_SSLv2);
+  if (!(ti->version & TPTLS_VERSION_SSLv3))
+    SSL_CTX_set_options(tls->ctx, SSL_OP_NO_SSLv3);
+  if (!(ti->version & TPTLS_VERSION_TLSv1))
+    SSL_CTX_set_options(tls->ctx, SSL_OP_NO_TLSv1);
+#ifdef SSL_OP_NO_TLSv1_1
+  if (!(ti->version & TPTLS_VERSION_TLSv1_1))
+    SSL_CTX_set_options(tls->ctx, SSL_OP_NO_TLSv1_1);
+#endif
+#ifdef SSL_OP_NO_TLSv1_2
+  if (!(ti->version & TPTLS_VERSION_TLSv1_2))
+    SSL_CTX_set_options(tls->ctx, SSL_OP_NO_TLSv1_2);
+#endif
+  SSL_CTX_sess_set_remove_cb(tls->ctx, NULL);
   SSL_CTX_set_timeout(tls->ctx, ti->timeout);
+#ifdef SSL_OP_NO_COMPRESSION
+  /* CRIME (CVE-2012-4929) mitigation */
+  SSL_CTX_set_options(tls->ctx, SSL_OP_NO_COMPRESSION);
+#endif
 
   /* Set callback if we have a passphrase */
   if (ti->passphrase != NULL) {
@@ -385,7 +418,13 @@ int tls_init_context(tls_t *tls, tls_issues_t const *ti)
   SSL_CTX_set_verify_depth(tls->ctx, ti->verify_depth);
   SSL_CTX_set_verify(tls->ctx, verify, tls_verify_cb);
 
-  if (!SSL_CTX_set_cipher_list(tls->ctx, ti->cipher)) {
+  if (tls_init_ecdh_curve(tls) == 0) {
+    SU_DEBUG_3(("%s\n", "tls: initialized ECDH"));
+  } else {
+    SU_DEBUG_3(("%s\n", "tls: failed to initialize ECDH"));
+  }
+
+  if (!SSL_CTX_set_cipher_list(tls->ctx, ti->ciphers)) {
     SU_DEBUG_1(("%s: error setting cipher list\n", "tls_init_context"));
     tls_log_errors(3, "tls_init_context", 0);
     errno = EIO;
@@ -515,10 +554,33 @@ su_inline
 int tls_post_connection_check(tport_t *self, tls_t *tls)
 {
   X509 *cert;
+#if OPENSSL_VERSION_NUMBER < 0x009080bfL
+  SSL_CIPHER *cipher;
+#else
+  const SSL_CIPHER *cipher;
+#endif
+  char cipher_description[256];
+  int cipher_bits, alg_bits;
   int extcount;
   int i, j, error;
 
   if (!tls) return -1;
+
+  if (!(cipher = SSL_get_current_cipher(tls->con))) {
+    SU_DEBUG_7(("%s(%p): %s\n", __func__, (void*)self,
+                "OpenSSL failed to return an SSL_CIPHER object to us."));
+    return SSL_ERROR_SSL;
+  }
+  SU_DEBUG_9(("%s(%p): TLS cipher chosen (name): %s\n", __func__, (void*)self,
+              SSL_CIPHER_get_name(cipher)));
+  SU_DEBUG_9(("%s(%p): TLS cipher chosen (version): %s\n", __func__, (void*)self,
+              SSL_CIPHER_get_version(cipher)));
+  cipher_bits = SSL_CIPHER_get_bits(cipher, &alg_bits);
+  SU_DEBUG_9(("%s(%p): TLS cipher chosen (bits/alg_bits): %d/%d\n", __func__, (void*)self,
+              cipher_bits, alg_bits));
+  SSL_CIPHER_description(cipher, cipher_description, sizeof(cipher_description));
+  SU_DEBUG_9(("%s(%p): TLS cipher chosen (description): %s\n", __func__, (void*)self,
+              cipher_description));
 
   cert = SSL_get_peer_certificate(tls->con);
   if (!cert) {

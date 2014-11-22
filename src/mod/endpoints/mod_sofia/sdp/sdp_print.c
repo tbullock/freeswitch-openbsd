@@ -618,8 +618,10 @@ static void print_media(sdp_printer_t *p,
 	sdp_printf(p, " %s", l->l_text);
     }
     else {
-      sdp_printf(p, " 19");      /* SDP syntax requires at least one format.
-				    19 is used by nobody, right?. */
+		/* SDP syntax requires at least one format. */
+		/* defaults to "19", or "t38" for image */
+		if (m->m_type == sdp_media_image) sdp_printf(p, " t38");
+		else sdp_printf(p, " 19");
     }
 
 
@@ -638,14 +640,16 @@ static void print_media(sdp_printer_t *p,
       print_key(p, m->m_key);
 
     for (rm = m->m_rtpmaps; rm; rm = rm->rm_next) {
-      if (!rm->rm_predef || p->pr_all_rtpmaps)
-	sdp_printf(p, "a=rtpmap:%u %s/%lu%s%s" CRLF,
-		   rm->rm_pt, rm->rm_encoding, rm->rm_rate,
-		   rm->rm_params ? "/" : "",
-		   rm->rm_params ? rm->rm_params : "");
-      if (rm->rm_fmtp)
-	sdp_printf(p, "a=fmtp:%u %s" CRLF,
-		   rm->rm_pt, rm->rm_fmtp);
+		if (rm->rm_encoding && *rm->rm_encoding && (!rm->rm_predef || p->pr_all_rtpmaps)) {
+			sdp_printf(p, "a=rtpmap:%u %s/%lu%s%s" CRLF,
+					   rm->rm_pt, rm->rm_encoding, rm->rm_rate,
+					   rm->rm_params ? "/" : "",
+					   rm->rm_params ? rm->rm_params : "");
+		}
+		if (rm->rm_fmtp) {
+			sdp_printf(p, "a=fmtp:%u %s" CRLF,
+					   rm->rm_pt, rm->rm_fmtp);
+		}
     }
 
     if (!p->pr_mode_manual && !m->m_rejected &&

@@ -58,6 +58,9 @@ EXPORT tag_typedef_t tptag_idle_ref =
 extern tag_typedef_t tptag_timeout;
 EXPORT tag_typedef_t tptag_timeout_ref = 
   REFTAG_TYPEDEF(tptag_timeout);
+extern tag_typedef_t tptag_socket_keepalive;
+EXPORT tag_typedef_t tptag_socket_keepalive_ref = 
+  REFTAG_TYPEDEF(tptag_socket_keepalive);
 extern tag_typedef_t tptag_keepalive;
 EXPORT tag_typedef_t tptag_keepalive_ref = 
   REFTAG_TYPEDEF(tptag_keepalive);
@@ -76,6 +79,9 @@ EXPORT tag_typedef_t tptag_certificate_ref =
 extern tag_typedef_t tptag_compartment;
 EXPORT tag_typedef_t tptag_compartment_ref = 
   REFTAG_TYPEDEF(tptag_compartment);
+extern tag_typedef_t tptag_tls_ciphers;
+EXPORT tag_typedef_t tptag_tls_ciphers_ref = 
+  REFTAG_TYPEDEF(tptag_tls_ciphers);
 extern tag_typedef_t tptag_tls_version;
 EXPORT tag_typedef_t tptag_tls_version_ref = 
   REFTAG_TYPEDEF(tptag_tls_version);
