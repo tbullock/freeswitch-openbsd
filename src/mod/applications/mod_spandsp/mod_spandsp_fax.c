@@ -113,8 +113,6 @@ static struct {
 	int thread_running;
 } t38_state_list;
 
-
-
 static void wake_thread(int force)
 {
 	if (force) {
@@ -1285,6 +1283,14 @@ static pvt_t *pvt_init(switch_core_session_t *session, mod_spandsp_fax_applicati
 	}
 
 	return pvt;
+}
+
+void mod_spandsp_fax_stop_fax(switch_core_session_t *session)
+{
+        pvt_t *pvt = switch_channel_get_private(switch_core_session_get_channel(session), "_fax_pvt");
+        if (pvt) {
+                pvt->done = 1;
+        }
 }
 
 void mod_spandsp_fax_process_fax(switch_core_session_t *session, const char *data, mod_spandsp_fax_application_mode_t app_mode)
