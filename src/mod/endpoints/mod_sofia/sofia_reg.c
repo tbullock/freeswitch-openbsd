@@ -2894,21 +2894,27 @@ auth_res_t sofia_reg_parse_auth(sofia_profile_t *profile,
 
 
 	if (nc && cnonce && qop) {
+		time_t expires = 0;
 		ncl = strtoul(nc, 0, 16);
 
-#if defined(_WIN32) && !defined(_WIN64)
-#define	LL_FMT "ll"
-#else
-#define	LL_FMT "l"
-#endif
-		sql = switch_mprintf("update sip_authentication set expires='%" LL_FMT "u',last_nc=%lu where nonce='%s'",
-							 switch_epoch_time_now(NULL) + (profile->nonce_ttl ? profile->nonce_ttl : DEFAULT_NONCE_TTL) + exptime, ncl, nonce);
+		expires = switch_epoch_time_now(NULL);
+		if(profile->nonce_ttl != 0)
+			expires += profile->nonce_ttl;
+		else
+			expires += DEFAULT_NONCE_TTL;
+		expires += exptime;
+
+		asprintf(&sql, "update sip_authentication set expires='%llu'"
+		               ",last_nc=%lu where nonce='%s'",
+		               expires, ncl, nonce);
 
 		switch_assert(sql != NULL);
 		sofia_glue_execute_sql_now(profile, &sql, SWITCH_TRUE);
 
 		if (ret == AUTH_OK)
 			ret = AUTH_RENEWED;
+
+		free(sql);
 	}
 
 	switch_event_destroy(&params);
