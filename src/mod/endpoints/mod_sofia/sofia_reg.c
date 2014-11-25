@@ -1008,7 +1008,7 @@ void sofia_reg_auth_challenge(sofia_profile_t *profile, nua_handle_t *nh, sofia_
 	char uuid_str[SWITCH_UUID_FORMATTED_LENGTH + 1];
 	char *sql, *auth_str;
 	msg_t *msg = NULL;
-
+	time_t expires;
 
 	if (de && de->data) {
 		msg = de->data->e_msg;
@@ -1017,10 +1017,18 @@ void sofia_reg_auth_challenge(sofia_profile_t *profile, nua_handle_t *nh, sofia_
 	switch_uuid_get(&uuid);
 	switch_uuid_format(uuid_str, &uuid);
 
-	sql = switch_mprintf("insert into sip_authentication (nonce,expires,profile_name,hostname, last_nc) "
-						 "values('%q', %ld, '%q', '%q', 0)", uuid_str,
-						 (long) switch_epoch_time_now(NULL) + (profile->nonce_ttl ? profile->nonce_ttl : DEFAULT_NONCE_TTL) + exptime,
-						 profile->name, mod_sofia_globals.hostname);
+	expires = switch_epoch_time_now(NULL);
+	if(profile->nonce_ttl != 0)
+	    expires += profile->nonce_ttl;
+	else
+	    expires += DEFAULT_NONCE_TTL;
+	expires += exptime;
+
+	asprintf(&sql,"insert into sip_authentication "
+		"(nonce,expires,profile_name,hostname, last_nc) "
+	    "values('%s', %lld, '%s', '%s', 0)", uuid_str,
+	    expires, profile->name, mod_sofia_globals.hostname);
+
 	switch_assert(sql != NULL);
 	sofia_glue_execute_sql_now(profile, &sql, SWITCH_TRUE);
 
