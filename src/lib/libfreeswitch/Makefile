@@ -55,7 +55,7 @@ SRCS=	g711.c switch_apr.c switch_buffer.c switch_caller.c \
 		switch_core_sqldb.c switch_core_state_machine.c \
 		switch_core_timer.c switch_curl.c switch_dso.c \
 		switch_event.c switch_ivr.c switch_ivr_async.c \
-		switch_ivr_bridge.c switch_ivr_menu.c \
+		switch_ivr_bridge.c switch_hashtable.c switch_ivr_menu.c \
 		switch_ivr_originate.c switch_ivr_play_say.c \
 		switch_ivr_say.c switch_json.c \
 		switch_limit.c switch_loadable_module.c \

@@ -485,8 +485,8 @@ static void destroy_tones(void)
         const void *vvar;
         tone_descriptor_t *d;
 
-        for (hi = switch_hash_first(NULL, spandsp_globals.tones); hi; hi = switch_hash_next(hi)) {
-            switch_hash_this(hi, &vvar, NULL, &val);
+        for (hi = switch_core_hash_first(spandsp_globals.tones); hi; hi = switch_core_hash_next(&hi)) {
+            switch_core_hash_this(hi, &vvar, NULL, &val);
 
             d = (tone_descriptor_t *) val;
             super_tone_rx_free_descriptor(d->spandsp_tone_descriptor);
@@ -508,7 +508,7 @@ switch_status_t load_configuration(switch_bool_t reload)
 	}
 
 	switch_core_new_memory_pool(&spandsp_globals.config_pool);
-	switch_core_hash_init(&spandsp_globals.tones, spandsp_globals.config_pool);
+	switch_core_hash_init(&spandsp_globals.tones);
 
 	spandsp_globals.modem_dialplan = "XML";
 	spandsp_globals.modem_context = "default";

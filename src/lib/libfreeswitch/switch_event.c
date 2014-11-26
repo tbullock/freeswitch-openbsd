@@ -552,9 +552,9 @@ SWITCH_DECLARE(switch_status_t) switch_event_shutdown(void)
 		}
 	}
 
-	for (hi = switch_hash_first(NULL, CUSTOM_HASH); hi; hi = switch_hash_next(hi)) {
+	for (hi = switch_core_hash_first(CUSTOM_HASH); hi; hi = switch_core_hash_next(&hi)) {
 		switch_event_subclass_t *subclass;
-		switch_hash_this(hi, &var, NULL, &val);
+		switch_core_hash_this(hi, &var, NULL, &val);
 		if ((subclass = (switch_event_subclass_t *) val)) {
 			FREE(subclass->name);
 			FREE(subclass->owner);
@@ -651,7 +651,7 @@ SWITCH_DECLARE(switch_status_t) switch_event_init(switch_memory_pool_t *pool)
 	switch_mutex_init(&BLOCK, SWITCH_MUTEX_NESTED, RUNTIME_POOL);
 	switch_mutex_init(&POOL_LOCK, SWITCH_MUTEX_NESTED, RUNTIME_POOL);
 	switch_mutex_init(&EVENT_QUEUE_MUTEX, SWITCH_MUTEX_NESTED, RUNTIME_POOL);
-	switch_core_hash_init(&CUSTOM_HASH, RUNTIME_POOL);
+	switch_core_hash_init(&CUSTOM_HASH);
 
 	switch_mutex_lock(EVENT_QUEUE_MUTEX);
 	SYSTEM_RUNNING = -1;

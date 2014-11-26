@@ -1949,6 +1949,8 @@ typedef struct switch_core_port_allocator switch_core_port_allocator_t;
 typedef struct switch_media_bug switch_media_bug_t;
 typedef struct switch_limit_interface switch_limit_interface_t;
 
+typedef void (*hashtable_destructor_t)(void *ptr);
+
 struct switch_console_callback_match_node {
 	char *val;
 	struct switch_console_callback_match_node *next;
@@ -2104,9 +2106,10 @@ typedef switch_xml_t(*switch_xml_search_function_t) (const char *section,
 													 const char *tag_name, const char *key_name, const char *key_value, switch_event_t *params,
 													 void *user_data);
 
-typedef struct switch_hash switch_hash_t;
-struct apr_hash_index_t;
-typedef struct apr_hash_index_t switch_hash_index_t;
+struct switch_hashtable;
+struct switch_hashtable_iterator;
+typedef struct switch_hashtable switch_hash_t;
+typedef struct switch_hashtable_iterator switch_hash_index_t;
 
 struct switch_network_list;
 typedef struct switch_network_list switch_network_list_t;
