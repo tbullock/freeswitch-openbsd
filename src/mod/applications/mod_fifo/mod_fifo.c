@@ -4594,7 +4594,6 @@ static void fifo_member_add(char *fifo_name, char *originate_string, int simo_co
 	switch_assert(sql);
 	fifo_execute_sql_queued(&sql, SWITCH_TRUE, SWITCH_TRUE);
 
-
 	switch_mutex_lock(globals.mutex);
 	if (!(node = switch_core_hash_find(globals.fifo_hash, fifo_name))) {
 		node = create_node(fifo_name, 0, globals.sql_mutex);
@@ -4603,6 +4602,7 @@ static void fifo_member_add(char *fifo_name, char *originate_string, int simo_co
 	switch_mutex_unlock(globals.mutex);
 
 	name_dup = strdup(fifo_name);
+	assert(name_dup != NULL);
 	if ((p = strchr(name_dup, '@'))) {
 		*p = '\0';
 	}
@@ -4610,9 +4610,9 @@ static void fifo_member_add(char *fifo_name, char *originate_string, int simo_co
 	sql = switch_mprintf("insert into fifo_outbound "
 						 "(uuid, fifo_name, originate_string, simo_count, use_count, timeout, "
 						 "lag, next_avail, expires, static, outbound_call_count, outbound_fail_count, hostname, taking_calls, active_time, inactive_time) "
-						 "values ('%q','%q','%q',%d,%d,%d,%d,%d,%ld,0,0,0,'%q',%d,%ld,0)",
-						 digest, fifo_name, originate_string, simo_count, 0, timeout, lag, 0, (long) expires, globals.hostname, taking_calls,
-						 (long)switch_epoch_time_now(NULL));
+						 "values ('%q','%q','%q',%d,%d,%d,%d,%d,%lld,0,0,0,'%q',%d,%lld,0)",
+						 digest, fifo_name, originate_string, simo_count, 0, timeout, lag, 0, expires, globals.hostname, taking_calls,
+						 switch_epoch_time_now(NULL));
 	switch_assert(sql);
 	fifo_execute_sql_queued(&sql, SWITCH_TRUE, SWITCH_TRUE);
 	free(name_dup);
