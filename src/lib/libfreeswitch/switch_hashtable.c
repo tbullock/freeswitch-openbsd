@@ -97,50 +97,49 @@ hashtable_expand(switch_hashtable_t *h)
     struct entry **newtable;
     struct entry *e;
     struct entry **pE;
-    unsigned int newsize, i, index;
+    size_t newsize;
+    uint32_t i, index;
     /* Check we're not hitting max capacity */
     if (h->primeindex == (prime_table_length - 1)) return 0;
     newsize = primes[++(h->primeindex)];
 
-    newtable = (struct entry **)malloc(sizeof(struct entry*) * newsize);
-    if (NULL != newtable)
-		{
-			memset(newtable, 0, newsize * sizeof(struct entry *));
-			/* This algorithm is not 'stable'. ie. it reverses the list
-			 * when it transfers entries between the tables */
-			for (i = 0; i < h->tablelength; i++) {
-				while (NULL != (e = h->table[i])) {
-					h->table[i] = e->next;
-					index = indexFor(newsize,e->h);
-					e->next = newtable[index];
-					newtable[index] = e;
-				}
-			}
-			switch_safe_free(h->table);
-			h->table = newtable;
-		}
-    /* Plan B: realloc instead */
-    else 
-		{
-			newtable = (struct entry **)
-				realloc(h->table, newsize * sizeof(struct entry *));
-			if (NULL == newtable) { (h->primeindex)--; return 0; }
-			h->table = newtable;
-			memset(newtable[h->tablelength], 0, newsize - h->tablelength);
-			for (i = 0; i < h->tablelength; i++) {
-				for (pE = &(newtable[i]), e = *pE; e != NULL; e = *pE) {
-					index = indexFor(newsize,e->h);
+    newtable = calloc(newsize, sizeof(struct entry*));
+    if (newtable != NULL) {
+	    bzero(newtable, newsize * sizeof(struct entry *));
+	    /* This algorithm is not 'stable'. ie. it reverses the list
+	     * when it transfers entries between the tables */
+	    for (i = 0; i < h->tablelength; i++) {
+	        while (NULL != (e = h->table[i])) {
+	            h->table[i] = e->next;
+	            index = indexFor(newsize,e->h);
+	            e->next = newtable[index];
+	            newtable[index] = e;
+	        }
+	    }
+	    switch_safe_free(h->table);
+	    h->table = newtable;
+	} else { /* Plan B: realloc instead */
+	    newtable = reallocarray(h->table, newsize, sizeof(struct entry *));
+	    if (NULL == newtable) {
+	        (h->primeindex)--;
+	        return 0;
+	    }
+	    h->table = newtable;
+	    bzero(newtable[h->tablelength], newsize - h->tablelength);
 
-					if (index == i) {
-						pE = &(e->next);
-					} else {
-						*pE = e->next;
-						e->next = newtable[index];
-						newtable[index] = e;
-					}
-				}
-			}
-		}
+	    for (i = 0; i < h->tablelength; i++) {
+	        for (pE = &(newtable[i]), e = *pE; e != NULL; e = *pE) {
+	            index = indexFor(newsize,e->h);
+	            if (index == i)
+	                pE = &(e->next);
+	            else {
+	                *pE = e->next;
+	                e->next = newtable[index];
+	                newtable[index] = e;
+	            }
+	        }
+	    }
+	}
     h->tablelength = newsize;
     h->loadlimit   = (unsigned int) ceil(newsize * max_load_factor);
     return -1;
