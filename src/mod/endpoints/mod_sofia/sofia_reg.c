@@ -531,7 +531,7 @@ int sofia_reg_find_reg_with_positive_expires_callback(void *pArg, int argc, char
 {
 	struct callback_t *cbt = (struct callback_t *) pArg;
 	sofia_destination_t *dst = NULL;
-	long int expires;
+	time_t expires;
 	char *contact = NULL;
 
 	if (zstr(argv[0])) {
@@ -541,23 +541,26 @@ int sofia_reg_find_reg_with_positive_expires_callback(void *pArg, int argc, char
 	if (cbt->contact_str && !strcasecmp(argv[0], cbt->contact_str)) {
 		expires = cbt->exptime;
 	} else {
-		expires = atol(argv[1]) - 60 - (long) cbt->time;
+		/* FIXME: Replace with strtonum; identify bounding range first */
+		expires = atoll(argv[1]) - 60 - cbt->time;
 	}
 
 	if (expires > 0) {
 		dst = sofia_glue_get_destination(argv[0]);
-		contact = switch_mprintf("<%s>;expires=%ld", dst->contact, expires);
+		asprintf(&contact, "<%s>;expires=%lld", dst->contact, expires);
+		if(contact == NULL)
+			err(1, "asprintf");
 
 		if (!cbt->len) {
 			switch_console_push_match(&cbt->list, contact);
-			switch_safe_free(contact);
+			free(contact);
 			sofia_glue_free_destination(dst);
 			cbt->matches++;
 			return 0;
 		}
 
 		switch_copy_string(cbt->val, contact, cbt->len);
-		switch_safe_free(contact);
+		free(contact);
 		sofia_glue_free_destination(dst);
 		cbt->matches++;
 		return cbt->matches == 1 ? 0 : 1;
