@@ -623,16 +623,20 @@ void sofia_reg_send_reboot(sofia_profile_t *profile, const char *callid, const c
 	} else if (switch_stristr("cisco", user_agent)) {
 		event = "service-control";
 		contenttype = "text/plain";
-		body = switch_mprintf("action=restart\n"
-							  "RegisterCallId={%s}\n"
-							  "ConfigVersionStamp={0000000000000000}\n"
-							  "DialplanVersionStamp={0000000000000000}\n"
-							  "SoftkeyVersionStamp={0000000000000000}", callid);
+		asprintf(&body,
+			"action=restart\n""RegisterCallId={%s}\n"
+			"ConfigVersionStamp={0000000000000000}\n"
+			"DialplanVersionStamp={0000000000000000}\n"
+			"SoftkeyVersionStamp={0000000000000000}",
+			callid);
+
+		if (body == NULL)
+			err(1, "asprintf");
 	}
 
 	sofia_glue_send_notify(profile, user, host, event, contenttype, body ? body : "", contact, network_ip, callid);
 
-	switch_safe_free(body);
+	free(body);
 }
 
 int sofia_sla_dialog_del_callback(void *pArg, int argc, char **argv, char **columnNames)
