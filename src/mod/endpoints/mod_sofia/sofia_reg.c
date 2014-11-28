@@ -38,6 +38,7 @@
  *
  */
 #include "mod_sofia.h"
+#include <sqlite3.h>
 
 static void sofia_reg_new_handle(sofia_gateway_t *gateway_ptr, int attach)
 {
@@ -698,10 +699,12 @@ void sofia_reg_expire_call_id(sofia_profile_t *profile, const char *call_id, int
 {
 	char *sql = NULL;
 	char *sqlextra = NULL;
-	char *dup = strdup(call_id);
+	char *dup = NULL;
 	char *host = NULL, *user = NULL;
 
-	switch_assert(dup);
+	dup = strdup(call_id);
+	if (dup == NULL)
+	    err(1, "strdup");
 
 	if ((host = strchr(dup, '@'))) {
 		*host++ = '\0';
@@ -714,27 +717,41 @@ void sofia_reg_expire_call_id(sofia_profile_t *profile, const char *call_id, int
 		host = "none";
 	}
 
-	if (zstr(user)) {
-		sqlextra = switch_mprintf(" or (sip_host='%q')", host);
-	} else {
-		sqlextra = switch_mprintf(" or (sip_user='%q' and sip_host='%q')", user, host);
-	}
+	if (zstr(user))
+	    sqlextra = sqlite3_mprintf(" OR (sip_host='%q')", host);
+	else
+	    sqlextra = sqlite3_mprintf(" OR (sip_user='%q' AND sip_host='%q')",
+	        user, host);
 
-	sql = switch_mprintf("select call_id,sip_user,sip_host,contact,status,rpid,expires"
-						 ",user_agent,server_user,server_host,profile_name,network_ip"
-						 ",%d from sip_registrations where call_id='%q' %s", reboot, call_id, sqlextra);
+	if (sqlextra == NULL)
+	    err(1, "sqlite3_mprintf");
 
+	sql = sqlite3_mprintf("SELECT "
+	    "call_id, sip_user, sip_host, contact, status, rpid, expires, "
+	    "user_agent, server_user, server_host, profile_name, network_ip, "
+	    "%d FROM sip_registrations WHERE call_id='%q' %q",
+	    reboot, call_id, sqlextra);
 
-	sofia_glue_execute_sql_callback(profile, profile->dbh_mutex, sql, sofia_reg_del_callback, profile);
-	switch_safe_free(sql);
+	if (sql == NULL)
+	    err(1, "sqlite3_mprintf");
 
-	sql = switch_mprintf("delete from sip_registrations where call_id='%q' %s", call_id, sqlextra);
-	sofia_glue_execute_sql_now(profile, &sql, SWITCH_TRUE);
+	sofia_glue_execute_sql_callback(profile, profile->dbh_mutex, sql,
+	    sofia_reg_del_callback, profile);
+	sqlite3_free(sql);
+	sql == NULL;
 
-	switch_safe_free(sqlextra);
-	switch_safe_free(sql);
-	switch_safe_free(dup);
+	sql = sqlite3_mprintf("DELETE FROM "
+		"sip_registrations WHERE call_id='%q' %q",
+		call_id, sqlextra);
 
+	if (sql == NULL)
+	    err(1, "sqlite3_mprintf");
+
+	sofia_glue_execute_sql_now(profile, &sql, SWITCH_FALSE);
+
+	sqlite3_free(sqlextra);
+	sqlite3_free(sql);
+	free(dup);
 }
 
 void sofia_reg_check_expire(sofia_profile_t *profile, time_t now, int reboot)
