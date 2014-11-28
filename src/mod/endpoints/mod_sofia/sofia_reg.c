@@ -292,7 +292,7 @@ void sofia_reg_check_gateway(sofia_profile_t *profile, time_t now)
 		if (gateway_ptr->deleted) {
 			if ((check = switch_core_hash_find(mod_sofia_globals.gateway_hash, gateway_ptr->name)) && check == gateway_ptr) {
 				char *pkey;
-				aprintf(&pkey, "%s::%s", profile->name, gateway_ptr->name);
+				asprintf(&pkey, "%s::%s", profile->name, gateway_ptr->name);
 				if (pkey == NULL)
 					err(1, "asprintf");
 				switch_log_printf(SWITCH_CHANNEL_LOG, SWITCH_LOG_DEBUG, "Removing gateway %s from hash.\n", pkey);
