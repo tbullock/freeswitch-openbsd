@@ -757,29 +757,36 @@ void sofia_reg_expire_call_id(sofia_profile_t *profile, const char *call_id, int
 void sofia_reg_check_expire(sofia_profile_t *profile, time_t now, int reboot)
 {
 	char *sql;
+	char *sql_now = "";
 
 	if (now) {
-		sql = switch_mprintf("select call_id,sip_user,sip_host,contact,status,rpid,expires"
-						",user_agent,server_user,server_host,profile_name,network_ip"
-						",%d from sip_registrations where expires > 0 and expires <= %ld", reboot, (long) now);
-	} else {
-		sql = switch_mprintf("select call_id,sip_user,sip_host,contact,status,rpid,expires"
-						",user_agent,server_user,server_host,profile_name,network_ip" ",%d from sip_registrations where expires > 0", reboot);
+	    asprintf(&sql_now, " AND expires <= %lld", now);
+	    if (sql_now == NULL)
+	        err(1, "asprintf");
 	}
 
-	sofia_glue_execute_sql_callback(profile, profile->dbh_mutex, sql, sofia_reg_del_callback, profile);
+	asprintf(&sql, "SELECT "
+	    "call_id, sip_user, sip_host, contact, status, rpid, expires, "
+	    "user_agent, server_user, server_host, profile_name, network_ip, "
+	    "%d FROM sip_registrations WHERE expires > 0"
+	    "%s",
+	    reboot, sql_now);
+
+	if (sql == NULL)
+	    err(1, "sqlite3_mprintf");
+
+	sofia_glue_execute_sql_callback(profile, profile->dbh_mutex, sql, 
+	    sofia_reg_del_callback, profile);
+
 	free(sql);
 
-	if (now) {
-		sql = switch_mprintf("delete from sip_registrations where expires > 0 and expires <= %ld and hostname='%q'",
-						(long) now, mod_sofia_globals.hostname);
-	} else {
-		sql = switch_mprintf("delete from sip_registrations where expires > 0 and hostname='%q'", mod_sofia_globals.hostname);
-	}
-	sofia_glue_execute_sql(profile, &sql, SWITCH_TRUE);
-	
+	sql = sqlite3_mprintf("DELETE FROM "
+	    "sip_registrations WHERE expires > 0 AND hostname='%q'"
+	    "%s",
+	    mod_sofia_globals.hostname, sql_now);
+	sofia_glue_execute_sql(profile, &sql, SWITCH_FALSE);
 
-
+	sqlite3_free(sql);
 
 	if (now) {
 		sql = switch_mprintf("select call_id from sip_shared_appearance_dialogs where hostname='%q' "
@@ -854,7 +861,8 @@ void sofia_reg_check_expire(sofia_profile_t *profile, time_t now, int reboot)
 			switch_safe_free(sql);
 		}
 	}
-
+	if (now)
+	    free(sql_now);
 }
 
 
