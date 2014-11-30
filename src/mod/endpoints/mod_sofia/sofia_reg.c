@@ -818,14 +818,16 @@ void sofia_reg_check_expire(sofia_profile_t *profile, time_t now, int reboot)
 	    sqlite3_free(sql);
 	}
 
-	if (now) {
-		sql = switch_mprintf("delete from sip_presence where expires > 0 and expires <= %ld and hostname='%q'",
-						(long) now, mod_sofia_globals.hostname);
-	} else {
-		sql = switch_mprintf("delete from sip_presence where expires > 0 and hostname='%q'", mod_sofia_globals.hostname);
-	}
+	sql = sqlite3_mprintf("DELETE FROM sip_presence "
+	    "WHERE expires > 0 AND hostname='%q'"
+	    "%s",
+	    mod_sofia_globals.hostname, sql_now);
 
-	sofia_glue_execute_sql(profile, &sql, SWITCH_TRUE);
+	if (sql == NULL)
+	    err(1, "sqlite3_mprintf");
+
+	sofia_glue_execute_sql(profile, &sql, SWITCH_FALSE);
+	sqlite3_free(sql);
 
 	if (now) {
 		sql = switch_mprintf("delete from sip_authentication where expires > 0 and expires <= %ld and hostname='%q'",
