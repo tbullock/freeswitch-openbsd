@@ -809,7 +809,7 @@ void sofia_reg_check_expire(sofia_profile_t *profile, time_t now, int reboot)
 	        "sip_shared_appearance_dialogs WHERE expires > 0 "
 	        "AND hostname='%q'"
 	        "%s",
-		    mod_sofia_globals.hostname, sql_now);
+	        mod_sofia_globals.hostname, sql_now);
 
 	    if (sql == NULL)
 	        err(1, "sqlite3_mprintf");
