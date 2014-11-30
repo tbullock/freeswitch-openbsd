@@ -784,24 +784,39 @@ void sofia_reg_check_expire(sofia_profile_t *profile, time_t now, int reboot)
 	    "sip_registrations WHERE expires > 0 AND hostname='%q'"
 	    "%s",
 	    mod_sofia_globals.hostname, sql_now);
-	sofia_glue_execute_sql(profile, &sql, SWITCH_FALSE);
 
+	if (sql == NULL)
+	    err(1, "sqlite3_mprintf");
+
+	sofia_glue_execute_sql(profile, &sql, SWITCH_FALSE);
 	sqlite3_free(sql);
 
 	if (now) {
-		sql = switch_mprintf("select call_id from sip_shared_appearance_dialogs where hostname='%q' "
-						"and profile_name='%s' and expires <= %ld", mod_sofia_globals.hostname, profile->name, (long) now);
+	    sql = sqlite3_mprintf("SELECT call_id "
+	        "FROM sip_shared_appearance_dialogs WHERE hostname='%q' "
+	        "AND profile_name='%s'"
+	        "%s",
+	        mod_sofia_globals.hostname, profile->name, sql_now);
 
-		sofia_glue_execute_sql_callback(profile, profile->dbh_mutex, sql, sofia_sla_dialog_del_callback, profile);
-		free(sql);
+	    if (sql == NULL)
+	        err(1, "sqlite3_mprintf");
 
-		sql = switch_mprintf("delete from sip_shared_appearance_dialogs where expires > 0 and hostname='%q' and expires <= %ld",
-						mod_sofia_globals.hostname, (long) now);
+	    sofia_glue_execute_sql_callback(profile, profile->dbh_mutex, sql,
+	        sofia_sla_dialog_del_callback, profile);
+	    sqlite3_free(sql);
 
+	    sql = sqlite3_mprintf("DELETE FROM "
+	        "sip_shared_appearance_dialogs WHERE expires > 0 "
+	        "AND hostname='%q'"
+	        "%s",
+		    mod_sofia_globals.hostname, sql_now);
 
-		sofia_glue_execute_sql(profile, &sql, SWITCH_TRUE);
+	    if (sql == NULL)
+	        err(1, "sqlite3_mprintf");
+
+	    sofia_glue_execute_sql(profile, &sql, SWITCH_FALSE);
+	    sqlite3_free(sql);
 	}
-
 
 	if (now) {
 		sql = switch_mprintf("delete from sip_presence where expires > 0 and expires <= %ld and hostname='%q'",
