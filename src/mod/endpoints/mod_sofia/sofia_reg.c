@@ -842,15 +842,20 @@ void sofia_reg_check_expire(sofia_profile_t *profile, time_t now, int reboot)
 
 	sofia_presence_check_subscriptions(profile, now);
 
-	if (now) {
-		sql = switch_mprintf("delete from sip_dialogs where (expires = -1 or (expires > 0 and expires <= %ld)) and hostname='%q'",
-						(long) now, mod_sofia_globals.hostname);
-	} else {
-		sql = switch_mprintf("delete from sip_dialogs where expires >= -1 and hostname='%q'", mod_sofia_globals.hostname);
-	}
+	if (now)
+	    sql = sqlite3_mprintf("DELETE FROM sip_dialogs WHERE "
+	        "(expires = -1 OR (expires > 0 AND expires <= %lld)) "
+	        "AND hostname='%q'",
+	        now, mod_sofia_globals.hostname);
+	else
+	    sql = sqlite3_mprintf("DELETE FROM sip_dialogs WHERE "
+	        "expires >= -1 AND hostname='%q'", mod_sofia_globals.hostname);
 
-	sofia_glue_execute_sql(profile, &sql, SWITCH_TRUE);
+	if (sql == NULL)
+	    err(1, "sqlite3_mprintf");
 
+	sofia_glue_execute_sql(profile, &sql, SWITCH_FALSE);
+	sqlite3_free(sql);
 
 	if (now) {
 		if (sofia_test_pflag(profile, PFLAG_ALL_REG_OPTIONS_PING)) {
