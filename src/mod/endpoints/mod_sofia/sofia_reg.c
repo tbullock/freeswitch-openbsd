@@ -1009,40 +1009,45 @@ sofia_reg_check_sync(sofia_profile_t *profile) {
 	free(sql);
 }
 
-char *sofia_reg_find_reg_url(sofia_profile_t *profile, const char *user, const char *host, char *val, switch_size_t len)
+char *
+sofia_reg_find_reg_url(sofia_profile_t *profile, const char *user, 
+	const char *host, char *val, switch_size_t len)
 {
 	struct callback_t cbt = { 0 };
 	char *sql;
 
-	if (!user) {
-		switch_log_printf(SWITCH_CHANNEL_LOG, SWITCH_LOG_ERROR, "Called with null user!\n");
-		return NULL;
+	if (user == NULL) {
+	    switch_log_printf(SWITCH_CHANNEL_LOG, SWITCH_LOG_ERROR,
+	        "Called with null user!\n");
+	    return NULL;
 	}
 
 	cbt.val = val;
 	cbt.len = len;
 
-	if (host) {
-		sql = switch_mprintf("select contact from sip_registrations where sip_user='%q' and (sip_host='%q' or presence_hosts like '%%%q%%')",
-						user, host, host);
-	} else {
-		sql = switch_mprintf("select contact from sip_registrations where sip_user='%q'", user);
-	}
+	if (host != NULL)
+	    sql = sqlite3_mprintf("SELECT contact FROM sip_registrations "
+		    "WHERE sip_user='%q' AND "
+		    "(sip_host='%q' OR presence_hosts LIKE '%%%q%%')",
+		    user, host, host);
+	else
+	    sql = sqlite3_mprintf("SELECT contact FROM sip_registrations "
+	        "WHERE sip_user='%q'", user);
 
+	if (sql == NULL)
+	    err(1, "sqlite3_mprintf");
 
-	sofia_glue_execute_sql_callback(profile, profile->dbh_mutex, sql, sofia_reg_find_callback, &cbt);
+	sofia_glue_execute_sql_callback(profile, profile->dbh_mutex, sql,
+	    sofia_reg_find_callback, &cbt);
+	sqlite3_free(sql);
 
-	switch_safe_free(sql);
-
-	if (cbt.list) {
+	if (cbt.list)
 		switch_console_free_matches(&cbt.list);
-	}
 
-	if (cbt.matches) {
-		return val;
-	} else {
+	if (cbt.matches)
+	    return val;
+	else
 		return NULL;
-	}
 }
 
 
