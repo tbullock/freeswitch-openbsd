@@ -917,44 +917,50 @@ int sofia_reg_check_callback(void *pArg, int argc, char **argv, char **columnNam
 	return 0;
 }
 
-void sofia_reg_check_call_id(sofia_profile_t *profile, const char *call_id)
-{
+void
+sofia_reg_check_call_id(sofia_profile_t *profile, const char *call_id) {
 	char *sql = NULL;
 	char *sqlextra = NULL;
-	char *dup = strdup(call_id);
+	char *dup = NULL;
 	char *host = NULL, *user = NULL;
 
-	switch_assert(dup);
+	dup = strdup(call_id);
+	if (dup == NULL)
+	    err(1, "strdup");
 
 	if ((host = strchr(dup, '@'))) {
-		*host++ = '\0';
-		user = dup;
-	} else {
-		host = dup;
-	}
+	    *host++ = '\0';
+	    user = dup;
+	} else
+	    host = dup;
 
-	if (!host) {
-		host = "none";
-	}
+	if (host == NULL)
+	    host = "none";
 
-	if (zstr(user)) {
-		sqlextra = switch_mprintf(" or (sip_host='%q')", host);
-	} else {
-		sqlextra = switch_mprintf(" or (sip_user='%q' and sip_host='%q')", user, host);
-	}
+	if (zstr(user))
+	    asprintf(&sqlextra, " OR (sip_host='%s')", host);
+	else
+	    asprintf(&sqlextra, " OR (sip_user='%s' AND sip_host='%s')",
+	        user, host);
 
-	sql = switch_mprintf("select call_id,sip_user,sip_host,contact,status,rpid,expires"
-						 ",user_agent,server_user,server_host,profile_name,network_ip"
-						 " from sip_registrations where call_id='%q' %s", call_id, sqlextra);
+	if (sqlextra == NULL)
+	    err(1, "sqlite3_mprintf");
 
+	asprintf(&sql, "SELECT "
+	    "call_id, sip_user, sip_host, contact, status, rpid, expires, "
+	    "user_agent, server_user, server_host, profile_name, network_ip "
+	    "FROM sip_registrations WHERE call_id='%s' %s",
+	    call_id, sqlextra);
 
-	sofia_glue_execute_sql_callback(profile, profile->dbh_mutex, sql, sofia_reg_check_callback, profile);
+	if (sql == NULL)
+	    err(1, "asprintf");
 
+	sofia_glue_execute_sql_callback(profile, profile->dbh_mutex, sql,
+	    sofia_reg_check_callback, profile);
 
-	switch_safe_free(sql);
-	switch_safe_free(sqlextra);
-	switch_safe_free(dup);
-
+	free(sql);
+	free(sqlextra);
+	free(dup);
 }
 
 void sofia_reg_check_sync(sofia_profile_t *profile)
