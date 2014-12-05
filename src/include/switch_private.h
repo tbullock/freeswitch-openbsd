@@ -138,5 +138,6 @@
 #define SWITCH_MOD_DIR "/usr/local/lib/fs_mod"
 #define SWITCH_RECORDINGS_DIR "/var/freeswitch/recordings"
 #define SWITCH_RUN_DIR "/var/run"
+#define SWITCH_PREFIX_DIR "/etc/freeswitch" /* ssl cert dir depends on this */
 
 #endif

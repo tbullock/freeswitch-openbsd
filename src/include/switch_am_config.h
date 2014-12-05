@@ -32,23 +32,6 @@
 #define SWITCH_SSIZE_T ssize_t
 
 #define SWITCH_SIZEOF_VOIDP sizeof(void*)
-/*
- * Ok, a note on implementation (should probably go elsewhere)
- * Upstream freeswitch handles the problem of cross platform porting
- * by creating distribution bundles of 'known good' library versions.
- *
- * This is fine from a stability point of view (dependencies don't 
- * change underneath them), but causes major problems for distributors
- * which have taken a substantial amount of time to make the various
- * library dependencies actually work properly on their platforms
- * (http://marc.info/?l=openbsd-ports&m=132247710226325&w=2)
- *
- * Upstream Freeswitch in its current form, although stable is not
- * packagable.
- *
- * Point here is that the following line will probably be changed
- */
-#define SWITCH_PREFIX_DIR "/usr/local"
 
 /*
  * From> man 3 printf on OpenBSD
