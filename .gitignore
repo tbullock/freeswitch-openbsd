@@ -148,31 +148,6 @@ Release/
 /scripts/fsxs
 /scripts/gentls_cert
 
-/src/mod/applications/mod_easyroute/Makefile
-/src/mod/applications/mod_hash/Makefile.in
-/src/mod/applications/mod_hash/mod_hash.log
-/src/mod/applications/mod_lcr/Makefile
-/src/mod/applications/mod_nibblebill/Makefile
-/src/mod/applications/mod_osp/Makefile
-/src/mod/applications/mod_osp/Makefile.in
-/src/mod/applications/mod_rss/Makefile
-/src/mod/applications/mod_snipe_hunt/Makefile
-/src/mod/codecs/mod_com_g729/Makefile
-/src/mod/codecs/mod_com_g729/Makefile.in
-/src/mod/codecs/mod_dahdi_codec/Makefile
-/src/mod/dialplans/mod_dialplan_directory/Makefile
-/src/mod/formats/mod_shell_stream/Makefile
-/src/mod/languages/mod_lua/mod_lua_wrap.cpp.orig
-/src/mod/languages/mod_perl/mod_perl_wrap.cpp.orig
-/src/mod/languages/mod_python/mod_python_wrap.cpp.orig
-/src/mod/say/mod_say_de/Makefile
-/src/mod/say/mod_say_es/Makefile
-/src/mod/say/mod_say_fr/Makefile
-/src/mod/say/mod_say_it/Makefile
-/src/mod/say/mod_say_nl/Makefile
-/src/mod/say/mod_say_th/Makefile
-/src/mod/say/mod_say_zh/Makefile
-
 BuildLog.htm
 
 !/libs/win32/
