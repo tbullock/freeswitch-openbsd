@@ -2025,19 +2025,6 @@ void sofia_reg_handle_sip_i_register(nua_t *nua, sofia_profile_t *profile, nua_h
 	int network_port = 0;
 	char *is_nat = NULL;
 
-#if 0 /* This seems to cause undesirable effects so nevermind */
-	if (sip->sip_to && sip->sip_to->a_url && sip->sip_to->a_url->url_host) {
-		const char *to_host = sip->sip_to->a_url->url_host;
-		if (profile->reg_db_domain) {
-			if (!sofia_glue_profile_exists(to_host)) {				
-				if (sofia_glue_add_profile(switch_core_strdup(profile->pool, to_host), profile) == SWITCH_STATUS_SUCCESS) {
-					switch_log_printf(SWITCH_CHANNEL_LOG, SWITCH_LOG_NOTICE, "Auto-Adding Alias [%s] for profile [%s]\n", to_host, profile->name);
-				}
-			}
-		}
-	}
-#endif
-
 	sofia_glue_get_addr(de->data->e_msg, network_ip, sizeof(network_ip), &network_port);
 
 	/* backwards compatibility */
