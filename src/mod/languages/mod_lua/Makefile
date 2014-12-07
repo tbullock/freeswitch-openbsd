@@ -20,7 +20,7 @@ NOPROFILE= true
 CFLAGS += -I../../../include
 CFLAGS += -I/usr/local/include/lua-5.1
 
-LDADD+=	-L/usr/local/lib -llua5.1 -avoid-version -module
+LDADD+=	-L/usr/local/lib -llua5.1
 
 LINKS= ${LIBDIR}/lib${LIB}.so.${SHLIB_MAJOR}.${SHLIB_MINOR} ${LIBDIR}/${LIB}.so
 
