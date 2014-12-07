@@ -16,9 +16,15 @@ CFLAGS+=        ${NOPIE_FLAGS}
 AFLAGS+=        ${NOPIE_FLAGS}
 .endif
 
-.c.so:
+.c.o:
 	@echo "${COMPILE.c} ${PICFLAG} -DPIC ${.IMPSRC} -o ${.TARGET}"
 	@${COMPILE.c} ${PICFLAG} -DPIC ${.IMPSRC} -o ${.TARGET}.o
+	@${LD} -X -r ${.TARGET}.o -o ${.TARGET}
+	@rm -f ${.TARGET}.o
+
+.cc.o .cpp.o .C.o .cxx.o:
+	@echo "${COMPILE.cc} ${PICFLAG} -DPIC ${.IMPSRC} -o ${.TARGET}"
+	@${COMPILE.cc} ${PICFLAG} -DPIC ${.IMPSRC} -o ${.TARGET}.o
 	@${LD} -X -r ${.TARGET}.o -o ${.TARGET}
 	@rm -f ${.TARGET}.o
 
