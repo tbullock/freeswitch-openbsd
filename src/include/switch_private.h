@@ -137,7 +137,7 @@
 #define SWITCH_MOD_DIR "/usr/local/lib/fs_mod"
 #define SWITCH_PREFIX_DIR "/var/freeswitch"
 #define SWITCH_RECORDINGS_DIR "/var/freeswitch/recordings"
-#define SWITCH_RUN_DIR "/var/run"
+#define SWITCH_RUN_DIR "/var/freeswitch/run"
 #define SWITCH_SCRIPT_DIR "/usr/local/share/freeswitch/scripts"
 #define SWITCH_SOUNDS_DIR "/usr/local/share/freeswitch/sounds"
 #define SWITCH_STORAGE_DIR "/var/freeswitch/storage"
