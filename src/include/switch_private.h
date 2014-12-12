@@ -130,14 +130,18 @@
 /* Put data and config in good places */
 #define SWITCH_CONF_DIR "/etc/freeswitch"
 #define SWITCH_DB_DIR "/var/freeswitch/db"
-#define SWITCH_LOG_DIR "/var/freeswitch/log"
 #define SWITCH_GRAMMAR_DIR "/usr/local/share/freeswitch/grammar"
-#define SWITCH_SCRIPT_DIR "/usr/local/share/freeswitch/scripts"
-#define SWITCH_SOUNDS_DIR "/usr/local/share/freeswitch/sounds"
-#define SWITCH_HTDOCS_DIR "/var/www/htdocs"
+#define SWITCH_HTDOCS_DIR "/var/freeswitch/htdocs"
+#define SWITCH_LIB_DIR "/var/freeswitch/lib"
+#define SWITCH_LOG_DIR "/var/freeswitch/log"
 #define SWITCH_MOD_DIR "/usr/local/lib/fs_mod"
+#define SWITCH_PREFIX_DIR "/var/freeswitch"
 #define SWITCH_RECORDINGS_DIR "/var/freeswitch/recordings"
 #define SWITCH_RUN_DIR "/var/run"
-#define SWITCH_PREFIX_DIR "/etc/freeswitch" /* ssl cert dir depends on this */
+#define SWITCH_SCRIPT_DIR "/usr/local/share/freeswitch/scripts"
+#define SWITCH_SOUNDS_DIR "/usr/local/share/freeswitch/sounds"
+#define SWITCH_STORAGE_DIR "/var/freeswitch/storage"
+#define SWITCH_TEMP_DIR "/tmp"
+
 
 #endif

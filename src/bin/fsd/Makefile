@@ -13,7 +13,7 @@
 # OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
 
 PROG=	fsd
-BINDIR=	/usr/local/bin
+BINDIR=	/usr/local/sbin
 MANDIR=	/usr/local/man/man
 
 MAN=	fsd.1
