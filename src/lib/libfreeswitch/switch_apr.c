@@ -612,29 +612,13 @@ SWITCH_DECLARE(const char *) switch_dir_next_file(switch_dir_t *thedir, char *bu
 	return fname;
 }
 
-/* thread stubs */
-
-#ifndef WIN32
-struct apr_threadattr_t {
-	apr_pool_t *pool;
-	pthread_attr_t attr;
-	int priority;
-};
-#else
-/* this needs to be revisited when apr for windows supports thread priority settings */
-/* search for WIN32 in this file */
-struct apr_threadattr_t {
-    apr_pool_t *pool;
-    apr_int32_t detach;
-    apr_size_t stacksize;
-};
-#endif
-
 switch_status_t
 switch_threadattr_create(switch_threadattr_t **n, switch_memory_pool_t *p) {
 	apr_status_t status;
 	char errbuf[256];
 
+	switch_log_printf(SWITCH_CHANNEL_LOG, SWITCH_LOG_DEBUG,
+	    "Legacy call to: %s, switch to apr_threadattr_create\n", __func__);
 	status = apr_threadattr_create(n, p);
 
 	if (status == APR_SUCCESS)
@@ -659,9 +643,8 @@ SWITCH_DECLARE(switch_status_t) switch_threadattr_stacksize_set(switch_threadatt
 
 SWITCH_DECLARE(switch_status_t) switch_threadattr_priority_set(switch_threadattr_t *attr, switch_thread_priority_t priority)
 {
-#ifndef WIN32
-	attr->priority = priority;
-#endif
+	switch_log_printf(SWITCH_CHANNEL_LOG, SWITCH_LOG_DEBUG,
+	    "Legacy call to: %s. Functionality has been disabled\n", __func__);
 	return SWITCH_STATUS_SUCCESS;
 }
 
