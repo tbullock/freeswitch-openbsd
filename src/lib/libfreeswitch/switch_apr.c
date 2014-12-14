@@ -630,18 +630,21 @@ struct apr_threadattr_t {
 };
 #endif
 
+switch_status_t
+switch_threadattr_create(switch_threadattr_t **n, switch_memory_pool_t *p) {
+	apr_status_t status;
+	char errbuf[256];
 
-SWITCH_DECLARE(switch_status_t) switch_threadattr_create(switch_threadattr_t ** new_attr, switch_memory_pool_t *pool)
-{
-	switch_status_t status;
+	status = apr_threadattr_create(n, p);
 
-	if ((status = apr_threadattr_create(new_attr, pool)) == SWITCH_STATUS_SUCCESS) {
-#ifndef WIN32
-		(*new_attr)->priority = SWITCH_PRI_LOW;
-#endif
-	}
+	if (status == APR_SUCCESS)
+	    return SWITCH_STATUS_SUCCESS;
 
-	return status;
+	apr_strerror(status, errbuf, sizeof(errbuf));
+	switch_log_printf(SWITCH_CHANNEL_LOG, SWITCH_LOG_ERROR,
+	    "apr_threadattr_create: (%s)\n", errbuf);
+
+	return SWITCH_STATUS_FALSE;
 }
 
 SWITCH_DECLARE(switch_status_t) switch_threadattr_detach_set(switch_threadattr_t *attr, int32_t on)
