@@ -428,7 +428,7 @@
 #define MOD_ZD "%zd"
 
 /* Define printf() modifier for size_t */
-#define MOD_ZU "%zu"
+#define MOD_ZU "%tu"
 
 /* Define to 1 if your C compiler doesn't accept -c and -o together. */
 /* #undef NO_MINUS_C_MINUS_O */
