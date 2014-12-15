@@ -71,6 +71,18 @@
 /* Needed since OpenBSD APR doesn't have goo in FS Tree version of apr */
 #include <apr-shim.h>
 
+static void
+switch_printerr(apr_status_t, const char *, const char *);
+
+static void
+switch_printerr(apr_status_t status, const char *failedfunc, const char *func)
+{
+	char errbuf[256];
+	apr_strerror(status, errbuf, sizeof(errbuf));
+	switch_log_printf(SWITCH_CHANNEL_LOG, SWITCH_LOG_ERROR,
+	    "%s: (%s) in %s\n", failedfunc, errbuf, func);
+}
+
 /* apr stubs */
 
 SWITCH_DECLARE(int) switch_status_is_timeup(int status)
@@ -614,33 +626,26 @@ SWITCH_DECLARE(const char *) switch_dir_next_file(switch_dir_t *thedir, char *bu
 
 switch_status_t
 switch_thread_init(apr_thread_t **thread, apr_size_t size, apr_pool_t *pool,
-	apr_thread_start_t func, void *data) {
-
+	apr_thread_start_t func, void *data)
+{
 	switch_threadattr_t *attr;
 	apr_status_t status;
-	char errbuf[256];
 
 	status = apr_threadattr_create(&attr, pool);
 	if (status != APR_SUCCESS) {
-	    apr_strerror(status, errbuf, sizeof(errbuf));
-	    switch_log_printf(SWITCH_CHANNEL_LOG, SWITCH_LOG_ERROR,
-	        "apr_threadattr_create: (%s) in %s\n", errbuf, __func__);
+	    switch_printerr(status, "apr_threadattr_create", __func__);
 	    return SWITCH_STATUS_FALSE;
 	}
 
 	status = apr_threadattr_stacksize_set(attr, size);
 	if (status != APR_SUCCESS) {
-	    apr_strerror(status, errbuf, sizeof(errbuf));
-	    switch_log_printf(SWITCH_CHANNEL_LOG, SWITCH_LOG_ERROR,
-	        "apr_threadattr_stacksize_set: (%s) in %s\n", errbuf, __func__);
+	    switch_printerr(status, "apr_threadattr_stacksize_set", __func__);
 	    return SWITCH_STATUS_FALSE;
 	}
 
 	status = apr_thread_create(thread, attr, func, data, pool);
 	if (status != APR_SUCCESS) {
-	    apr_strerror(status, errbuf, sizeof(errbuf));
-	    switch_log_printf(SWITCH_CHANNEL_LOG, SWITCH_LOG_ERROR,
-	        "apr_thread_create: (%s) in %s\n", errbuf, __func__);
+	    switch_printerr(status, "apr_thread_create", __func__);
 	    return SWITCH_STATUS_FALSE;
 	}
 
@@ -648,23 +653,20 @@ switch_thread_init(apr_thread_t **thread, apr_size_t size, apr_pool_t *pool,
 }
 
 switch_status_t
-switch_threadattr_create(switch_threadattr_t **n, switch_memory_pool_t *p) {
+switch_threadattr_create(switch_threadattr_t **n, switch_memory_pool_t *p)
+{
 	apr_status_t status;
-	char errbuf[256];
 
 	switch_log_printf(SWITCH_CHANNEL_LOG, SWITCH_LOG_DEBUG,
-	    "Legacy call to: %s, switch to apr_threadattr_create, use "
-	    "switch_thread_init instead.\n", __func__);
+	    "Legacy call to: %s, use switch_thread_init instead.\n", __func__);
+
 	status = apr_threadattr_create(n, p);
+	if (status != APR_SUCCESS) {
+		switch_printerr(status, "apr_thread_create", __func__);
+	    return SWITCH_STATUS_FALSE;
+	}
 
-	if (status == APR_SUCCESS)
-	    return SWITCH_STATUS_SUCCESS;
-
-	apr_strerror(status, errbuf, sizeof(errbuf));
-	switch_log_printf(SWITCH_CHANNEL_LOG, SWITCH_LOG_ERROR,
-	    "apr_threadattr_create: (%s)\n", errbuf);
-
-	return SWITCH_STATUS_FALSE;
+	return SWITCH_STATUS_SUCCESS;
 }
 
 SWITCH_DECLARE(switch_status_t) switch_threadattr_detach_set(switch_threadattr_t *attr, int32_t on)
