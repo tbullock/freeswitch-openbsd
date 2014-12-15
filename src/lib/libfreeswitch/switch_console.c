@@ -1015,7 +1015,6 @@ static unsigned char complete(EditLine * el, int ch)
 SWITCH_DECLARE(void) switch_console_loop(void)
 {
 	switch_thread_t *thread;
-	switch_threadattr_t *thd_attr = NULL;
 	switch_memory_pool_t *pool;
 
 	if (switch_core_new_memory_pool(&pool) != SWITCH_STATUS_SUCCESS) {
@@ -1087,10 +1086,8 @@ SWITCH_DECLARE(void) switch_console_loop(void)
 
 	el_source(el, NULL);
 
-	switch_threadattr_create(&thd_attr, pool);
-	switch_threadattr_detach_set(thd_attr, 1);
-	switch_threadattr_stacksize_set(thd_attr, SWITCH_THREAD_STACKSIZE);
-	switch_thread_create(&thread, thd_attr, console_thread, pool, pool);
+	assert(switch_thread_init(&thread, pool, SWITCH_THREAD_STACKSIZE, true,
+	    console_thread, pool) == SWITCH_STATUS_SUCCESS);
 
 	while (running) {
 		int32_t arg = 0;
