@@ -4,6 +4,7 @@
 
 .MAIN: all
 
+CFLAGS += -I/usr/local/include/apr-1
 # prefer .S to a .c, add .po, remove stuff not used in the BSD libraries.
 # .so used for PIC object files.
 # .do used for distrib "crunchgen" object files
