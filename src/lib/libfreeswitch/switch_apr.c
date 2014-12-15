@@ -613,12 +613,48 @@ SWITCH_DECLARE(const char *) switch_dir_next_file(switch_dir_t *thedir, char *bu
 }
 
 switch_status_t
+switch_thread_init(apr_thread_t **thread, apr_size_t size, apr_pool_t *pool,
+	apr_thread_start_t func, void *data) {
+
+	switch_threadattr_t *attr;
+	apr_status_t status;
+	char errbuf[256];
+
+	status = apr_threadattr_create(&attr, pool);
+	if (status != APR_SUCCESS) {
+	    apr_strerror(status, errbuf, sizeof(errbuf));
+	    switch_log_printf(SWITCH_CHANNEL_LOG, SWITCH_LOG_ERROR,
+	        "apr_threadattr_create: (%s) in %s\n", errbuf, __func__);
+	    return SWITCH_STATUS_FALSE;
+	}
+
+	status = apr_threadattr_stacksize_set(attr, size);
+	if (status != APR_SUCCESS) {
+	    apr_strerror(status, errbuf, sizeof(errbuf));
+	    switch_log_printf(SWITCH_CHANNEL_LOG, SWITCH_LOG_ERROR,
+	        "apr_threadattr_stacksize_set: (%s) in %s\n", errbuf, __func__);
+	    return SWITCH_STATUS_FALSE;
+	}
+
+	status = apr_thread_create(thread, attr, func, data, pool);
+	if (status != APR_SUCCESS) {
+	    apr_strerror(status, errbuf, sizeof(errbuf));
+	    switch_log_printf(SWITCH_CHANNEL_LOG, SWITCH_LOG_ERROR,
+	        "apr_thread_create: (%s) in %s\n", errbuf, __func__);
+	    return SWITCH_STATUS_FALSE;
+	}
+
+	return SWITCH_STATUS_SUCCESS;
+}
+
+switch_status_t
 switch_threadattr_create(switch_threadattr_t **n, switch_memory_pool_t *p) {
 	apr_status_t status;
 	char errbuf[256];
 
 	switch_log_printf(SWITCH_CHANNEL_LOG, SWITCH_LOG_DEBUG,
-	    "Legacy call to: %s, switch to apr_threadattr_create\n", __func__);
+	    "Legacy call to: %s, switch to apr_threadattr_create, use "
+	    "switch_thread_init instead.\n", __func__);
 	status = apr_threadattr_create(n, p);
 
 	if (status == APR_SUCCESS)

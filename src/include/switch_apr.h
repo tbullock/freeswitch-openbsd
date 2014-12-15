@@ -980,6 +980,12 @@ SWITCH_DECLARE(const char *) switch_dir_next_file(switch_dir_t *thedir, char *bu
 /** Opaque Thread attributes structure. */
 	 typedef struct apr_threadattr_t switch_threadattr_t;
 
+#include <apr_thread_proc.h>
+
+switch_status_t
+switch_thread_init(apr_thread_t **thread, apr_size_t size, apr_pool_t *pool,
+	apr_thread_start_t func, void *data);
+
 /**
  * The prototype for any APR thread worker functions.
  * typedef void *(SWITCH_THREAD_FUNC *switch_thread_start_t)(switch_thread_t*, void*);

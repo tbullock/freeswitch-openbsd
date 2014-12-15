@@ -1446,22 +1446,21 @@ SWITCH_DECLARE(switch_status_t) switch_sql_queue_manager_stop(switch_sql_queue_m
 	return status;
 }
 
-SWITCH_DECLARE(switch_status_t) switch_sql_queue_manager_start(switch_sql_queue_manager_t *qm)
-{
-	switch_threadattr_t *thd_attr;
+switch_status_t
+switch_sql_queue_manager_start(switch_sql_queue_manager_t *qm) {
 
-	if (!qm->thread_running) {
-		switch_log_printf(SWITCH_CHANNEL_LOG, SWITCH_LOG_INFO, "%s Starting SQL thread.\n", qm->name);
-		switch_threadattr_create(&thd_attr, qm->pool);
-		switch_threadattr_stacksize_set(thd_attr, SWITCH_THREAD_STACKSIZE);
-		switch_threadattr_priority_set(thd_attr, SWITCH_PRI_NORMAL);
-		switch_thread_create(&qm->thread, thd_attr, switch_user_sql_thread, qm, qm->pool);
-		return SWITCH_STATUS_SUCCESS;
-	}
+	if (qm == NULL)
+	    return SWITCH_STATUS_FALSE;
 
-	return SWITCH_STATUS_FALSE;
+	switch_log_printf(SWITCH_CHANNEL_LOG, SWITCH_LOG_INFO,
+	    "%s Starting SQL thread.\n", qm->name);
+
+	if (qm->thread_running != 0)
+	    return SWITCH_STATUS_FALSE;
+
+	return switch_thread_init(&qm->thread, SWITCH_THREAD_STACKSIZE, qm->pool,
+	    switch_user_sql_thread, qm);
 }
-
 
 static void do_flush(switch_sql_queue_manager_t *qm, int i, switch_cache_db_handle_t *dbh)
 {
