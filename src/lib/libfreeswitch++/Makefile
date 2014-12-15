@@ -20,6 +20,7 @@ NOPROFILE= true
 CPPFLAGS +=	-DENABLE_SRTP
 
 CFLAGS +=	-I/usr/local/include
+CFLAGS +=	-I/usr/local/include/apr-1
 CFLAGS +=	-I${.CURDIR}/../../include
 CFLAGS +=	-Wall
 
