@@ -1458,8 +1458,8 @@ switch_sql_queue_manager_start(switch_sql_queue_manager_t *qm) {
 	if (qm->thread_running != 0)
 	    return SWITCH_STATUS_FALSE;
 
-	return switch_thread_init(&qm->thread, SWITCH_THREAD_STACKSIZE, qm->pool,
-	    switch_user_sql_thread, qm);
+	return switch_thread_init(&qm->thread, qm->pool, SWITCH_THREAD_STACKSIZE,
+	    false, switch_user_sql_thread, qm);
 }
 
 static void do_flush(switch_sql_queue_manager_t *qm, int i, switch_cache_db_handle_t *dbh)

@@ -625,8 +625,8 @@ SWITCH_DECLARE(const char *) switch_dir_next_file(switch_dir_t *thedir, char *bu
 }
 
 switch_status_t
-switch_thread_init(apr_thread_t **thread, apr_size_t size, apr_pool_t *pool,
-	apr_thread_start_t func, void *data)
+switch_thread_init(apr_thread_t **thread, apr_pool_t *pool, size_t size,
+	bool detatch, apr_thread_start_t func, void *data)
 {
 	switch_threadattr_t *attr;
 	apr_status_t status;
@@ -635,6 +635,14 @@ switch_thread_init(apr_thread_t **thread, apr_size_t size, apr_pool_t *pool,
 	if (status != APR_SUCCESS) {
 	    switch_printerr(status, "apr_threadattr_create", __func__);
 	    return SWITCH_STATUS_FALSE;
+	}
+
+	if (detatch == true) {
+	    status = apr_threadattr_detach_set(attr, 1);
+	    if (status != APR_SUCCESS) {
+	        switch_printerr(status, "apr_threadattr_detach_set", __func__);
+	        return SWITCH_STATUS_FALSE;
+	    }
 	}
 
 	status = apr_threadattr_stacksize_set(attr, size);

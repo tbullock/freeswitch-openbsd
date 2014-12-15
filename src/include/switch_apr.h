@@ -983,8 +983,8 @@ SWITCH_DECLARE(const char *) switch_dir_next_file(switch_dir_t *thedir, char *bu
 #include <apr_thread_proc.h>
 
 switch_status_t
-switch_thread_init(apr_thread_t **thread, apr_size_t size, apr_pool_t *pool,
-	apr_thread_start_t func, void *data);
+switch_thread_init(apr_thread_t **, apr_pool_t *, size_t, bool,
+	apr_thread_start_t, void *);
 
 /**
  * The prototype for any APR thread worker functions.

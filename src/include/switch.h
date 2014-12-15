@@ -105,6 +105,7 @@
 #include <time.h>
 #include <signal.h>
 #include <errno.h>
+#include <stdbool.h>
 
 #ifndef WIN32
 #include "stfu.h"
