@@ -35,11 +35,11 @@ extern "C"
 #define SWITCH_DECLARE(x) x
 #define SWITCH_DECLARE_NONSTD(x) x
 #define SWITCH_DECLARE_DATA
+#define SWITCH_DECLARE_CLASS
+#define SWITCH_DECLARE_CONSTRUCTOR
 #define SWITCH_MOD_DECLARE(x) x
 #define SWITCH_MOD_DECLARE_NONSTD(x) x
 #define SWITCH_MOD_DECLARE_DATA
-#define SWITCH_DECLARE_CLASS
-#define SWITCH_DECLARE_CONSTRUCTOR SWITCH_DECLARE_DATA
 
 /* XXX: delete this after nuking all the stubs from switch_apr.* */
 #define SWITCH_THREAD_FUNC
