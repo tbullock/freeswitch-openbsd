@@ -30,9 +30,8 @@
 
 /* Used in switch_time.c */
 #define HAVE_CLOCK_GETRES
-
-/* Used in switch_time.c */
 #define HAVE_CLOCK_GETTIME
+#define SWITCH_USE_CLOCK_FUNCS
 
 /* Used in switch_core.c */
 #define HAVE_GETDTABLESIZE
