@@ -71,10 +71,7 @@
 /* Needed since OpenBSD APR doesn't have goo in FS Tree version of apr */
 #include <apr-shim.h>
 
-static void
-switch_printerr(apr_status_t, const char *, const char *);
-
-static void
+void
 switch_printerr(apr_status_t status, const char *failedfunc, const char *func)
 {
 	char errbuf[256];

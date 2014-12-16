@@ -42,6 +42,12 @@
 
 SWITCH_BEGIN_EXTERN_C
 
+#include <apr_errno.h>
+#include <errno.h>
+
+void
+switch_printerr(apr_status_t, const char *, const char *);
+
 SWITCH_DECLARE(int) switch_status_is_timeup(int status);
 
 #ifdef WIN32
