@@ -540,36 +540,42 @@ SWITCH_DECLARE(void) switch_core_service_session_av(switch_core_session_t *sessi
 
 */
 
-SWITCH_DECLARE(switch_thread_t *) switch_core_launch_thread(switch_thread_start_t func, void *obj, switch_memory_pool_t *pool)
+switch_thread_t *
+switch_core_launch_thread(switch_thread_start_t f, void *obj, apr_pool_t *p)
 {
-	switch_thread_t *thread = NULL;
-	switch_threadattr_t *thd_attr = NULL;
+	apr_status_t status;
+	apr_thread_t *th;
 	switch_core_thread_session_t *ts;
-	int mypool;
+	bool mypool;
 
-	mypool = pool ? 0 : 1;
+	mypool = (p == NULL) ? true : false;
 
-	if (!pool && switch_core_new_memory_pool(&pool) != SWITCH_STATUS_SUCCESS) {
-		switch_log_printf(SWITCH_CHANNEL_LOG, SWITCH_LOG_CRIT, "Could not allocate memory pool\n");
-		return NULL;
+	if (p == NULL) {
+	    status = apr_pool_create(&p, NULL); 
+	    if (status != APR_SUCCESS) {
+	        switch_printerr(status, "apr_pool_create", __func__);
+	        return NULL;
+	    }
 	}
 
-	switch_threadattr_create(&thd_attr, pool);
+	ts = apr_pcalloc(p, sizeof(switch_core_thread_session_t));
 
-	if ((ts = switch_core_alloc(pool, sizeof(*ts))) == 0) {
-		switch_log_printf(SWITCH_CHANNEL_LOG, SWITCH_LOG_CRIT, "Could not allocate memory\n");
-	} else {
-		if (mypool) {
-			ts->pool = pool;
-		}
-		ts->objs[0] = obj;
-		ts->objs[1] = thread;
-		switch_threadattr_stacksize_set(thd_attr, SWITCH_THREAD_STACKSIZE);
-		switch_threadattr_priority_set(thd_attr, SWITCH_PRI_REALTIME);
-		switch_thread_create(&thread, thd_attr, func, ts, pool);
+	if (ts == NULL) {
+	    switch_log_printf(SWITCH_CHANNEL_LOG, SWITCH_LOG_CRIT,
+	        "apr_pcalloc failed in %s\n", __func__);
+	    return NULL;
 	}
 
-	return thread;
+	if (mypool == true)
+	    ts->pool = p;
+
+	ts->objs[0] = obj;
+	ts->objs[1] = th;
+
+	/* don't worry about checking return result, th will be NULL on failure */
+	switch_thread_init(&th, p, SWITCH_THREAD_STACKSIZE, false, f, ts);
+
+	return th;
 }
 
 SWITCH_DECLARE(void) switch_core_set_globals(void)
