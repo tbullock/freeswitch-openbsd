@@ -617,9 +617,6 @@ void switch_core_memory_stop(void)
 
 switch_memory_pool_t *switch_core_memory_init(void)
 {
-#ifndef INSTANTLY_DESTROY_POOLS
-	switch_threadattr_t *thd_attr;
-#endif
 #ifdef PER_POOL_LOCK
 	apr_allocator_t *my_allocator = NULL;
 	apr_thread_mutex_t *my_mutex;
@@ -665,11 +662,8 @@ switch_memory_pool_t *switch_core_memory_init(void)
 	switch_queue_create(&memory_manager.pool_queue, 50000, memory_manager.memory_pool);
 	switch_queue_create(&memory_manager.pool_recycle_queue, 50000, memory_manager.memory_pool);
 
-	switch_threadattr_create(&thd_attr, memory_manager.memory_pool);
-	switch_threadattr_detach_set(thd_attr, 0);
-
-	switch_threadattr_stacksize_set(thd_attr, SWITCH_THREAD_STACKSIZE);
-	switch_thread_create(&pool_thread_p, thd_attr, pool_thread, NULL, memory_manager.memory_pool);
+	switch_thread_init(&pool_thread_p, memory_manager.memory_pool,
+	    SWITCH_THREAD_STACKSIZE, false, pool_thread, NULL);
 
 	while (!memory_manager.pool_thread_running) {
 		switch_cond_next();
