@@ -551,18 +551,19 @@ switch_core_launch_thread(switch_thread_start_t f, void *obj, apr_pool_t *p)
 	mypool = (p == NULL) ? true : false;
 
 	if (p == NULL) {
-	    status = apr_pool_create(&p, NULL); 
-	    if (status != APR_SUCCESS) {
-	        switch_printerr(status, "apr_pool_create", __func__);
+	    status = switch_core_new_memory_pool(&p);
+	    if (status != SWITCH_STATUS_SUCCESS) {
+	        switch_log_printf(SWITCH_CHANNEL_LOG, SWITCH_LOG_CRIT,
+	            "switch_core_new_memory_pool failed in %s\n", __func__);
 	        return NULL;
 	    }
 	}
 
-	ts = apr_pcalloc(p, sizeof(switch_core_thread_session_t));
+	ts = switch_core_alloc(p, sizeof(switch_core_thread_session_t));
 
 	if (ts == NULL) {
 	    switch_log_printf(SWITCH_CHANNEL_LOG, SWITCH_LOG_CRIT,
-	        "apr_pcalloc failed in %s\n", __func__);
+	        "switch_core_alloc failed in %s\n", __func__);
 	    return NULL;
 	}
 
