@@ -2755,7 +2755,7 @@ static void *SWITCH_THREAD_FUNC system_thread(switch_thread_t *thread, void *obj
 static int switch_system_thread(const char *cmd, switch_bool_t wait)
 {
 	switch_thread_t *thread;
-	switch_threadattr_t *thd_attr;
+	switch_status_t status;
 	int ret = 0;
 	struct system_thread_handle *sth;
 	switch_memory_pool_t *pool;
@@ -2777,10 +2777,15 @@ static int switch_system_thread(const char *cmd, switch_bool_t wait)
 	switch_mutex_init(&sth->mutex, SWITCH_MUTEX_NESTED, sth->pool);
 	switch_mutex_lock(sth->mutex);
 
-	switch_threadattr_create(&thd_attr, sth->pool);
-	switch_threadattr_stacksize_set(thd_attr, SWITCH_SYSTEM_THREAD_STACKSIZE);
-	switch_threadattr_detach_set(thd_attr, 1);
-	switch_thread_create(&thread, thd_attr, system_thread, sth, sth->pool);
+	status = switch_thread_init(&thread, sth->pool,
+		SWITCH_SYSTEM_THREAD_STACKSIZE, true, system_thread, sth);
+	if (status != SWITCH_STATUS_SUCCESS) {
+		switch_log_printf(SWITCH_CHANNEL_LOG, SWITCH_LOG_CRIT,
+			"switch_thread_init failed in %s\n", __func__);
+		switch_mutex_unlock(sth->mutex);
+		switch_core_destroy_memory_pool(&pool);
+		return 1;
+	}
 
 	if (wait) {
 		switch_thread_cond_wait(sth->cond, sth->mutex);
