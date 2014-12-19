@@ -3064,8 +3064,6 @@ SWITCH_DECLARE(switch_status_t) switch_core_expire_registration(int force)
 
 switch_status_t switch_core_sqldb_start(switch_memory_pool_t *pool, switch_bool_t manage)
 {
-	switch_threadattr_t *thd_attr;
-
 	sql_manager.memory_pool = pool;
 	sql_manager.manage = manage;
 
@@ -3338,13 +3336,9 @@ switch_status_t switch_core_sqldb_start(switch_memory_pool_t *pool, switch_bool_
 		switch_event_bind("core_db", SWITCH_EVENT_NAT, SWITCH_EVENT_SUBCLASS_ANY, core_event_handler, NULL);
 		switch_event_bind("core_db", SWITCH_EVENT_CODEC, SWITCH_EVENT_SUBCLASS_ANY, core_event_handler, NULL);
 #endif	
-
-		switch_threadattr_create(&thd_attr, sql_manager.memory_pool);
-		switch_threadattr_stacksize_set(thd_attr, SWITCH_THREAD_STACKSIZE);
-		switch_threadattr_priority_set(thd_attr, SWITCH_PRI_REALTIME);
 		switch_core_sqldb_start_thread();
-		switch_thread_create(&sql_manager.db_thread, thd_attr, switch_core_sql_db_thread, NULL, sql_manager.memory_pool);
-
+		switch_thread_init(&sql_manager.db_thread, sql_manager.memory_pool,
+		    SWITCH_THREAD_STACKSIZE, false, switch_core_sql_db_thread, NULL);
 	}
 
 	switch_cache_db_release_db_handle(&sql_manager.dbh);
