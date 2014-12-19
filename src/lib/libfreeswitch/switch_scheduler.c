@@ -319,16 +319,12 @@ switch_thread_t *task_thread_p = NULL;
 
 SWITCH_DECLARE(void) switch_scheduler_task_thread_start(void)
 {
-
-	switch_threadattr_t *thd_attr;
-
 	switch_core_new_memory_pool(&globals.memory_pool);
-	switch_threadattr_create(&thd_attr, globals.memory_pool);
 	switch_mutex_init(&globals.task_mutex, SWITCH_MUTEX_NESTED, globals.memory_pool);
 	switch_queue_create(&globals.event_queue, 250000, globals.memory_pool);
 
-	switch_threadattr_detach_set(thd_attr, 1);
-	switch_thread_create(&task_thread_p, thd_attr, switch_scheduler_task_thread, NULL, globals.memory_pool);
+	switch_thread_init(&task_thread_p, globals.memory_pool,
+	    SWITCH_THREAD_STACKSIZE, true, switch_scheduler_task_thread, NULL);
 }
 
 SWITCH_DECLARE(void) switch_scheduler_task_thread_stop(void)
