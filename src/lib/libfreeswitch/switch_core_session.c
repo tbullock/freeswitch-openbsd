@@ -1864,7 +1864,6 @@ SWITCH_DECLARE(switch_status_t) switch_core_session_thread_launch(switch_core_se
 {
 	switch_status_t status = SWITCH_STATUS_FALSE;
 	switch_thread_t *thread;
-	switch_threadattr_t *thd_attr;
 	
 	if (switch_test_flag(session, SSF_THREAD_RUNNING) || switch_test_flag(session, SSF_THREAD_STARTED)) {
 		status = SWITCH_STATUS_INUSE;
@@ -1886,19 +1885,15 @@ SWITCH_DECLARE(switch_status_t) switch_core_session_thread_launch(switch_core_se
 		switch_set_flag(session, SSF_THREAD_RUNNING);
 		switch_set_flag(session, SSF_THREAD_STARTED);
 
-		switch_threadattr_create(&thd_attr, session->pool);
-		switch_threadattr_detach_set(thd_attr, 1);
-		switch_threadattr_stacksize_set(thd_attr, SWITCH_THREAD_STACKSIZE);
-
-		if (switch_thread_create(&thread, thd_attr, switch_core_session_thread, session, session->pool) == SWITCH_STATUS_SUCCESS) {
-			switch_set_flag(session, SSF_THREAD_STARTED);
-			status = SWITCH_STATUS_SUCCESS;
-		} else {
+		status = switch_thread_init(&thread, session->pool,
+		    SWITCH_THREAD_STACKSIZE, true, switch_core_session_thread, session);
+		if (status != SWITCH_STATUS_SUCCESS) {
 			switch_clear_flag(session, SSF_THREAD_RUNNING);
 			switch_clear_flag(session, SSF_THREAD_STARTED);	
 			switch_log_printf(SWITCH_CHANNEL_SESSION_LOG(session), SWITCH_LOG_CRIT, "Cannot create thread!\n");
 			thread_launch_failure();
 		}
+		switch_set_flag(session, SSF_THREAD_STARTED);
 	}
 
 	switch_mutex_unlock(session->mutex);
