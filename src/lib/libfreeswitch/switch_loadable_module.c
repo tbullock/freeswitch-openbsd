@@ -705,7 +705,8 @@ chat_thread_start(int idx)
 
 	    for (i = 0; i < chat_globals.msg_queue_len; i++) {
 	        if (!chat_globals.msg_queue[i]) {
-	            switch_queue_create(&chat_globals.msg_queue[i], CHAT_QUEUE_SIZE, chat_globals.pool);
+	            switch_queue_create(&chat_globals.msg_queue[i],
+	                CHAT_QUEUE_SIZE, chat_globals.pool);
 
 	            switch_thread_init(&chat_globals.msg_queue_thread[i],
 	                chat_globals.pool, SWITCH_THREAD_STACKSIZE, false,
