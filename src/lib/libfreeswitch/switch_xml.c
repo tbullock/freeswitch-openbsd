@@ -2197,22 +2197,17 @@ static void *SWITCH_THREAD_FUNC destroy_thread(switch_thread_t *thread, void *ob
 SWITCH_DECLARE(void) switch_xml_free_in_thread(switch_xml_t xml, int stacksize)
 {
 	switch_thread_t *thread;
-	switch_threadattr_t *thd_attr;
-	switch_memory_pool_t *pool = NULL;
+	switch_memory_pool_t *pool;
 	struct destroy_xml *dx;
 
 	switch_core_new_memory_pool(&pool);
-
-	switch_threadattr_create(&thd_attr, pool);
-	switch_threadattr_detach_set(thd_attr, 1);
-	/* TBD figure out how much space we need by looking at the xml_t when stacksize == 0 */
-	switch_threadattr_stacksize_set(thd_attr, stacksize);
 
 	dx = switch_core_alloc(pool, sizeof(*dx));
 	dx->pool = pool;
 	dx->xml = xml;
 
-	switch_thread_create(&thread, thd_attr, destroy_thread, dx, pool);
+	/* TBD figure out how much space we need by looking at the xml_t when stacksize == 0 */
+	switch_thread_init(&thread, pool, stacksize, true, destroy_thread, dx);
 }
 
 static char not_so_threadsafe_error_buffer[256] = "";
