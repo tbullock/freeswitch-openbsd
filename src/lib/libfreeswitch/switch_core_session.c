@@ -1903,7 +1903,9 @@ SWITCH_DECLARE(switch_status_t) switch_core_session_thread_launch(switch_core_se
 	return status;
 }
 
-SWITCH_DECLARE(void) switch_core_session_launch_thread(switch_core_session_t *session, switch_thread_start_t func, void *obj)
+void
+switch_core_session_launch_thread(switch_core_session_t *session,
+	switch_thread_start_t func, void *obj)
 {
 	switch_thread_t *thread;
 	switch_status_t status;
