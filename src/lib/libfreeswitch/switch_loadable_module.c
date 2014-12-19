@@ -689,34 +689,29 @@ void *SWITCH_THREAD_FUNC chat_thread_run(switch_thread_t *thread, void *obj)
 }
 
 
-static void chat_thread_start(int idx)
+static void
+chat_thread_start(int idx)
 {
 
 	if (idx >= CHAT_MAX_MSG_QUEUE || (idx < chat_globals.msg_queue_len && chat_globals.msg_queue_thread[idx])) {
-		return;
+	    return;
 	}
 
 	switch_mutex_lock(chat_globals.mutex);
 	
 	if (idx >= chat_globals.msg_queue_len) {
-		int i;
-		chat_globals.msg_queue_len = idx + 1;
+	    int i;
+	    chat_globals.msg_queue_len = idx + 1;
 
-		for (i = 0; i < chat_globals.msg_queue_len; i++) {
-			if (!chat_globals.msg_queue[i]) {
-				switch_threadattr_t *thd_attr = NULL;
+	    for (i = 0; i < chat_globals.msg_queue_len; i++) {
+	        if (!chat_globals.msg_queue[i]) {
+	            switch_queue_create(&chat_globals.msg_queue[i], CHAT_QUEUE_SIZE, chat_globals.pool);
 
-				switch_queue_create(&chat_globals.msg_queue[i], CHAT_QUEUE_SIZE, chat_globals.pool);
-
-				switch_threadattr_create(&thd_attr, chat_globals.pool);
-				switch_threadattr_stacksize_set(thd_attr, SWITCH_THREAD_STACKSIZE);
-				switch_thread_create(&chat_globals.msg_queue_thread[i], 
-									 thd_attr, 
-									 chat_thread_run, 
-									 chat_globals.msg_queue[i], 
-									 chat_globals.pool);
-			}
-		}
+	            switch_thread_init(&chat_globals.msg_queue_thread[i],
+	                chat_globals.pool, SWITCH_THREAD_STACKSIZE, false,
+	                chat_thread_run, chat_globals.msg_queue[i]);
+	        }
+	    }
 	}
 
 	switch_mutex_unlock(chat_globals.mutex);
