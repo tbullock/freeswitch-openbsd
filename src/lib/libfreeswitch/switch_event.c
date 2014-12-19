@@ -589,7 +589,6 @@ static void check_dispatch(void)
 
 SWITCH_DECLARE(void) switch_event_launch_dispatch_threads(uint32_t max)
 {
-	switch_threadattr_t *thd_attr;
 	uint32_t index = 0;
 	int launched = 0;
 	uint32_t sanity = 200;
@@ -611,10 +610,9 @@ SWITCH_DECLARE(void) switch_event_launch_dispatch_threads(uint32_t max)
 			continue;
 		}
 
-		switch_threadattr_create(&thd_attr, pool);
-		switch_threadattr_stacksize_set(thd_attr, SWITCH_THREAD_STACKSIZE);
-		switch_threadattr_priority_set(thd_attr, SWITCH_PRI_REALTIME);
-		switch_thread_create(&EVENT_DISPATCH_QUEUE_THREADS[index], thd_attr, switch_event_dispatch_thread, EVENT_DISPATCH_QUEUE, pool);
+		switch_thread_init(&EVENT_DISPATCH_QUEUE_THREADS[index], pool,
+		    SWITCH_THREAD_STACKSIZE, false, switch_event_dispatch_thread,
+		    EVENT_DISPATCH_QUEUE);
 		while(--sanity && !EVENT_DISPATCH_QUEUE_RUNNING[index]) switch_yield(10000);
 
 		if (index == 1) {
@@ -630,8 +628,6 @@ SWITCH_DECLARE(void) switch_event_launch_dispatch_threads(uint32_t max)
 
 SWITCH_DECLARE(switch_status_t) switch_event_init(switch_memory_pool_t *pool)
 {
-	//switch_threadattr_t *thd_attr;
-
 	/* 
 	   This statement doesn't do anything commenting it out for now.
 
@@ -657,7 +653,6 @@ SWITCH_DECLARE(switch_status_t) switch_event_init(switch_memory_pool_t *pool)
 	SYSTEM_RUNNING = -1;
 	switch_mutex_unlock(EVENT_QUEUE_MUTEX);
 
-	//switch_threadattr_create(&thd_attr, pool);
 	switch_find_local_ip(guess_ip_v4, sizeof(guess_ip_v4), NULL, AF_INET);
 	switch_find_local_ip(guess_ip_v6, sizeof(guess_ip_v6), NULL, AF_INET6);
 
