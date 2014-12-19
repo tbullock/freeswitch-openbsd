@@ -116,13 +116,11 @@ static int task_thread_loop(int done)
 				}
 				tp->executed = now;
 				if (switch_test_flag(tp, SSHF_OWN_THREAD)) {
-					switch_thread_t *thread;
-					switch_threadattr_t *thd_attr;
+					switch_thread_t *th;
 					switch_core_new_memory_pool(&tp->pool);
-					switch_threadattr_create(&thd_attr, tp->pool);
-					switch_threadattr_detach_set(thd_attr, 1);
 					tp->in_thread = 1;
-					switch_thread_create(&thread, thd_attr, task_own_thread, tp, tp->pool);
+					switch_thread_init(&th, tp->pool, SWITCH_THREAD_STACKSIZE,
+					    true, task_own_thread, tp);
 				} else {
 					tp->running = 1;
 					switch_mutex_unlock(globals.task_mutex);
