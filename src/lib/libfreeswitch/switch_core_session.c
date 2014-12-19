@@ -2492,17 +2492,15 @@ void switch_core_session_init(switch_memory_pool_t *pool)
 	switch_core_hash_init(&session_manager.session_table);
 	
 	if (switch_test_flag((&runtime), SCF_SESSION_THREAD_POOL)) {
-		switch_threadattr_t *thd_attr;
-
 		switch_mutex_init(&session_manager.mutex, SWITCH_MUTEX_NESTED, session_manager.memory_pool);
 		switch_thread_cond_create(&session_manager.cond, session_manager.memory_pool);
 		switch_mutex_init(&session_manager.cond_mutex, SWITCH_MUTEX_NESTED, session_manager.memory_pool);
 		switch_mutex_init(&session_manager.cond2_mutex, SWITCH_MUTEX_NESTED, session_manager.memory_pool);
 		switch_queue_create(&session_manager.thread_queue, 100000, session_manager.memory_pool);
-		switch_threadattr_create(&thd_attr, session_manager.memory_pool);
-		switch_threadattr_stacksize_set(thd_attr, SWITCH_THREAD_STACKSIZE);
 		session_manager.ready = 1;
-		switch_thread_create(&session_manager.manager_thread, thd_attr, switch_core_session_thread_pool_manager, NULL, session_manager.memory_pool);		
+		switch_thread_init(&session_manager.manager_thread,
+		    session_manager.memory_pool, SWITCH_THREAD_STACKSIZE, false,
+		    switch_core_session_thread_pool_manager, NULL);
 	}
 
 }
