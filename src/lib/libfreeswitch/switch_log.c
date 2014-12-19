@@ -505,23 +505,17 @@ SWITCH_DECLARE(void) switch_log_vprintf(switch_text_channel_t channel, const cha
 
 SWITCH_DECLARE(switch_status_t) switch_log_init(switch_memory_pool_t *pool, switch_bool_t colorize)
 {
-	switch_threadattr_t *thd_attr;;
-
 	switch_assert(pool != NULL);
 
 	LOG_POOL = pool;
-
-	switch_threadattr_create(&thd_attr, LOG_POOL);
-	switch_threadattr_detach_set(thd_attr, 1);
-
 
 	switch_queue_create(&LOG_QUEUE, SWITCH_CORE_QUEUE_LEN, LOG_POOL);
 #ifdef SWITCH_LOG_RECYCLE
 	switch_queue_create(&LOG_RECYCLE_QUEUE, SWITCH_CORE_QUEUE_LEN, LOG_POOL);
 #endif
 	switch_mutex_init(&BINDLOCK, SWITCH_MUTEX_NESTED, LOG_POOL);
-	switch_threadattr_stacksize_set(thd_attr, SWITCH_THREAD_STACKSIZE);
-	switch_thread_create(&thread, thd_attr, log_thread, NULL, LOG_POOL);
+	switch_thread_init(&thread, pool, SWITCH_THREAD_STACKSIZE, false,
+	    log_thread, NULL);
 
 	while (!THREAD_RUNNING) {
 		switch_cond_next();
