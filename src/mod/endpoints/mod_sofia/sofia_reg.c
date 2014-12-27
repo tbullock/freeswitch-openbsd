@@ -3008,7 +3008,7 @@ auth_res_t sofia_reg_parse_auth(sofia_profile_t *profile,
 		               expires, ncl, nonce);
 
 		switch_assert(sql != NULL);
-		sofia_glue_execute_sql_now(profile, &sql, SWITCH_TRUE);
+		sofia_glue_execute_sql_now(profile, &sql, SWITCH_FALSE);
 
 		if (ret == AUTH_OK)
 			ret = AUTH_RENEWED;
