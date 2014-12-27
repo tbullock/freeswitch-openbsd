@@ -3003,7 +3003,7 @@ auth_res_t sofia_reg_parse_auth(sofia_profile_t *profile,
 			expires += DEFAULT_NONCE_TTL;
 		expires += exptime;
 
-		asprintf(&sql, "update sip_authentication set expires='%llu'"
+		asprintf(&sql, "update sip_authentication set expires='%lld'"
 		               ",last_nc=%lu where nonce='%s'",
 		               expires, ncl, nonce);
 
