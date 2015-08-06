@@ -1,0 +1,26 @@
+<include>
+  <user id="1000">
+    <params>
+      <param name="password" value="1111"/>
+      <param name="vm-password" value="1111"/>
+      <param name="vm-enabled" value="true"/>
+      <param name="vm-email-all-messages" value="true"/>
+      <param name="vm-attach-file" value="true"/>
+      <param name="vm-keep-local-after-email" value="false"/>
+      <param name="vm-mailto" value="test@test.com"/>
+      <param name="directory-exten-visible" value="true"/>
+      <param name="dial-string" value="{sip_invite_domain=${domain_name},presence_id=${dialed_user}@${dialed_domain}}${sofia_contact(*/${dialed_user}@${dialed_domain})}"/>
+    </params>
+    <variables>
+      <variable name="call_group" value="test"/>
+      <variable name="toll_allow" value=""/>
+      <variable name="accountcode" value=""/>
+      <variable name="user_context" value="default"/>
+      <variable name="outbound_caller_id_name" value="Test"/>
+      <variable name="outbound_caller_id_number" value="1111111111"/>
+      <variable name="directory-visible" value="true"/>
+      <variable name="limit_max" value="5"/>
+    </variables>
+  </user>
+</include>
+
